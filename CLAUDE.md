@@ -1,3 +1,5 @@
+<!-- Git abilities test: 2025-12-31 -->
+
 <letta_memory>
 <assistant_persona>
 Name: Thoth
