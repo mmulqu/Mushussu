@@ -4,7 +4,7 @@
 Thoth Agent - A stateful AI assistant built on Claude Agent SDK + Letta Memory + Discord
 Inspired by Strix: https://timkellogg.me/blog/2025/05/23/strix
 
-v2.7 - Wake-up context recall on restart
+v2.8 - Fixed multimodal image handling
 
 Key insight from Strix: "Replies as tools" - the agent explicitly calls send_message
 when it wants to communicate, rather than just outputting text.
@@ -875,8 +875,36 @@ async def invoke_claude_agent(
     response_text = ""
     tool_uses = []
 
+    def process_message(msg):
+        """Process a single message from the agent."""
+        nonlocal response_text
+
+        debug_log(f"───────────────────────────────────────────")
+        debug_log(f"Message type: {type(msg).__name__}")
+
+        if isinstance(msg, AssistantMessage):
+            for block in msg.content:
+                if isinstance(block, TextBlock):
+                    debug_log(f"📝 TEXT: {block.text[:200]}{'...' if len(block.text) > 200 else ''}")
+                    response_text += block.text
+                elif isinstance(block, ToolUseBlock):
+                    debug_log(f"🔧 TOOL CALL: {block.name}")
+                    debug_log(f"   Input: {json.dumps(block.input, indent=2)[:300]}")
+                    tool_uses.append({
+                        "tool": block.name,
+                        "input": block.input
+                    })
+                elif isinstance(block, ToolResultBlock):
+                    result_preview = str(block)[:200]
+                    debug_log(f"📤 TOOL RESULT: {result_preview}")
+                else:
+                    debug_log(f"❓ OTHER BLOCK: {type(block).__name__}")
+        else:
+            debug_log(f"📨 {type(msg).__name__}: {str(msg)[:200]}")
+
     try:
         async with ClaudeSDKClient(options=options) as client:
+            # Build query content
             if images:
                 content_parts = []
                 for img in images:
@@ -894,33 +922,26 @@ async def invoke_claude_agent(
             else:
                 await client.query(prompt)
 
-            async for msg in client.receive_response():
-                debug_log(f"───────────────────────────────────────────")
-                debug_log(f"Message type: {type(msg).__name__}")
+            # Get response - handle both async iterator and list
+            response = client.receive_response()
 
-                if isinstance(msg, AssistantMessage):
-                    for block in msg.content:
-                        if isinstance(block, TextBlock):
-                            debug_log(f"📝 TEXT: {block.text[:200]}{'...' if len(block.text) > 200 else ''}")
-                            response_text += block.text
-                        elif isinstance(block, ToolUseBlock):
-                            debug_log(f"🔧 TOOL CALL: {block.name}")
-                            debug_log(f"   Input: {json.dumps(block.input, indent=2)[:300]}")
-                            tool_uses.append({
-                                "tool": block.name,
-                                "input": block.input
-                            })
-                        elif isinstance(block, ToolResultBlock):
-                            result_preview = str(block)[:200]
-                            debug_log(f"📤 TOOL RESULT: {result_preview}")
-                        else:
-                            debug_log(f"❓ OTHER BLOCK: {type(block).__name__}")
-                else:
-                    debug_log(f"📨 {type(msg).__name__}: {str(msg)[:200]}")
+            # Check if it's a list or async iterator
+            if isinstance(response, list):
+                # It's already a list, iterate normally
+                debug_log(f"Response is a list with {len(response)} messages")
+                for msg in response:
+                    process_message(msg)
+            else:
+                # It's an async iterator
+                debug_log(f"Response is an async iterator")
+                async for msg in response:
+                    process_message(msg)
 
     except Exception as e:
         error_msg = f"Agent error: {type(e).__name__}: {e}"
         debug_log(f"❌ ERROR: {error_msg}")
+        import traceback
+        debug_log(f"Traceback: {traceback.format_exc()}")
         message_queue.messages.append(f"Sorry, I encountered an error: {e}")
         write_journal({
             "type": "error",
