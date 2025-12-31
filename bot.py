@@ -677,7 +677,7 @@ async def invoke_claude_agent(
         allowed_tools=allowed_tools,
         mcp_servers=mcp_servers if mcp_servers else None,
         permission_mode="acceptEdits",
-        max_turns=10,
+        max_turns=30,
     )
 
     response_text = ""
