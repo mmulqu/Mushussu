@@ -1,0 +1,16 @@
+# Thoth Agent Cron Jobs
+#
+# Add these to your crontab with: crontab -e
+#
+# =============================================================================
+
+# Perch time - every 2 hours
+# The agent gets ambient compute time to review state and act if needed
+0 */2 * * * curl -s -X POST http://localhost:8787/perch > /dev/null 2>&1
+
+# =============================================================================
+# Example: Daily morning briefing at 8am
+# 0 8 * * * curl -s -X POST http://localhost:8787/exec -H "Content-Type: application/json" -d '{"prompt": "Good morning! Give me a briefing on today.", "source": "cron-morning"}' > /dev/null 2>&1
+
+# Example: Weekly review on Sundays at 6pm  
+# 0 18 * * 0 curl -s -X POST http://localhost:8787/exec -H "Content-Type: application/json" -d '{"prompt": "Weekly review time. Summarize what happened this week and what is coming up.", "source": "cron-weekly"}' > /dev/null 2>&1

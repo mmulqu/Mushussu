@@ -1,0 +1,15 @@
+# Thoth Agent Dependencies
+
+# Core
+claude-agent-sdk>=0.1.0
+anyio>=4.0.0
+
+# HTTP server
+fastapi>=0.100.0
+uvicorn>=0.23.0
+
+# Letta memory
+letta-client>=1.0.0
+
+# Discord
+discord.py>=2.3.0

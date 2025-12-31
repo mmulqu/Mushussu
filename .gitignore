@@ -1,0 +1,42 @@
+# Logs (these are local state, not code)
+logs/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+.venv/
+env/
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets (never commit these!)
+.thoth-env
+*.key
+
+__pycache__/
+*.pyc
+.env
+*.backup
+state/
+logs/
+uploads/
+.venv/
+venv/
+*.egg-info/
+.idea/
+nul
+restart.flag
+*.jsonl

@@ -1,0 +1,28 @@
+{
+  "mcp": {
+    "allowed": [
+      "discord"
+    ]
+  },
+  "model": {
+    "maxSessionTurns": 158
+  },
+  "mcpServers": {
+    "discord": {
+      "command": "uv",
+      "args": [
+        "run",
+        "python",
+        "discord_mcp_server.py"
+      ],
+      "cwd": ".",
+      "trust": true
+    }
+  },
+  "tools": {
+    "autoAccept": true,
+    "core": [
+      "read_file"
+    ]
+  }
+}

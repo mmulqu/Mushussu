@@ -1,0 +1,39 @@
+# Thoth Agent systemd service
+# 
+# Install:
+#   sudo cp thoth.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable thoth
+#   sudo systemctl start thoth
+#
+# Check status:
+#   sudo systemctl status thoth
+#   sudo journalctl -u thoth -f
+
+[Unit]
+Description=Thoth Agent - Stateful AI Assistant
+After=network.target
+
+[Service]
+Type=simple
+User=YOUR_USERNAME
+Group=YOUR_USERNAME
+WorkingDirectory=/home/YOUR_USERNAME/thoth-agent
+ExecStart=/home/YOUR_USERNAME/miniconda3/envs/YOUR_ENV/bin/python bot.py
+Restart=always
+RestartSec=10
+
+# Environment variables
+Environment=ANTHROPIC_API_KEY=your-api-key-here
+Environment=LETTA_BASE_URL=http://localhost:8283
+Environment=LETTA_AGENT_ID=your-agent-id-here
+Environment=DISCORD_TOKEN=your-discord-token-here
+# Or load from file:
+# EnvironmentFile=/home/YOUR_USERNAME/.thoth-env
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
