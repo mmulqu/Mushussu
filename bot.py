@@ -1480,6 +1480,85 @@ async def invoke(request: Request):
         return JSONResponse({"error": str(e)}, status_code=500)
 
 
+@app.post("/perch")
+async def perch():
+    """Ambient processing tick - agent reviews state and acts autonomously."""
+    try:
+        # Read state files
+        state_files = {}
+        for name in ["today.md", "inbox.md", "commitments.md"]:
+            path = STATE_DIR / name
+            if path.exists():
+                state_files[name] = path.read_text(encoding="utf-8")[:2000]
+            else:
+                state_files[name] = "(not found)"
+
+        # Build perch prompt
+        prompt = f"""This is your scheduled ambient processing tick (runs every 2 hours).
+
+## Current State Files
+
+### today.md
+{state_files.get('today.md', '(empty)')}
+
+### inbox.md
+{state_files.get('inbox.md', '(empty)')}
+
+### commitments.md
+{state_files.get('commitments.md', '(empty)')}
+
+## Your Task
+
+1. Review your state files and recent journal
+2. Identify any tasks you can make progress on
+3. Update state files if needed (write to them)
+4. Send a brief message to Discord summarizing what you did or observed
+
+Be proactive but concise. If nothing needs attention, just send a brief status update."""
+
+        # We need to send to Discord, so we need the channel
+        if discord_client and discord_client.is_ready():
+            channel_id = DISCORD_CHANNEL_ID or _current_channel_id
+            if channel_id:
+                channel = discord_client.get_channel(int(channel_id))
+                if channel is None:
+                    channel = await discord_client.fetch_channel(int(channel_id))
+
+                if channel:
+                    discord_context = {
+                        "channel": getattr(channel, 'name', 'perch'),
+                        "user": "perch_tick",
+                        "recent_messages": [],
+                    }
+
+                    await invoke_agent(
+                        prompt=prompt,
+                        trigger_source="perch",
+                        discord_context=discord_context,
+                        use_discord_tools=True,
+                    )
+
+                    # Send queued messages to Discord
+                    for msg_content in message_queue.messages:
+                        if msg_content:
+                            chunks = [msg_content[i:i + 1900] for i in range(0, len(msg_content), 1900)]
+                            for chunk in chunks:
+                                await channel.send(chunk)
+
+                    result = {
+                        "status": "ok",
+                        "messages_sent": len(message_queue.messages),
+                        "timestamp": datetime.now(timezone.utc).isoformat(),
+                    }
+                    message_queue.clear()
+                    return result
+
+        return JSONResponse({"error": "Discord not connected or no channel configured"}, status_code=503)
+
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
+
+
 # =============================================================================
 # CLI Mode
 # =============================================================================
