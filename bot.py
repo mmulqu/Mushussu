@@ -4,7 +4,7 @@
 Thoth Agent - A stateful AI assistant built on Claude Agent SDK + Letta Memory + Discord
 Inspired by Strix: https://timkellogg.me/blog/2025/05/23/strix
 
-v2.5 - Full Git-based self-modification
+v2.7 - Wake-up context recall on restart
 
 Key insight from Strix: "Replies as tools" - the agent explicitly calls send_message
 when it wants to communicate, rather than just outputting text.
@@ -81,7 +81,6 @@ from claude_agent_sdk import (
 # Import local utils
 from git_utils import git_add, git_commit, git_push, GitError
 
-
 # =============================================================================
 # Configuration
 # =============================================================================
@@ -93,8 +92,10 @@ CLAUDE_MD = BASE_DIR / "CLAUDE.md"
 GEMINI_MD = BASE_DIR / "GEMINI.md"
 
 # Restart mode file - used for mode switching across restarts
-# Located in state/ directory so it persists and is accessible by both bot.py and run.py
 RESTART_MODE_FILE = STATE_DIR / "restart_mode.txt"
+
+# Wake-up context file - stores context for post-restart wake-up
+WAKEUP_CONTEXT_FILE = STATE_DIR / "wakeup_context.json"
 
 # Letta configuration
 LETTA_BASE_URL = os.getenv("LETTA_BASE_URL", "http://localhost:8283")
@@ -144,6 +145,52 @@ class MessageQueue:
 message_queue = MessageQueue()
 _restart_requested = False
 
+# Store current Discord context for wake-up
+_current_discord_context: Optional[dict] = None
+_current_channel_id: Optional[str] = None
+
+
+# =============================================================================
+# Wake-up Context Management
+# =============================================================================
+
+def save_wakeup_context(
+        channel_id: str,
+        user: str,
+        last_prompt: str,
+        mode: str,
+        reason: str = "restart"
+):
+    """Save context before restart so the agent can wake up with context."""
+    context = {
+        "channel_id": channel_id,
+        "user": user,
+        "last_prompt": last_prompt[:500],  # Truncate to avoid huge files
+        "mode": mode,
+        "reason": reason,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    }
+    try:
+        WAKEUP_CONTEXT_FILE.write_text(json.dumps(context, indent=2), encoding="utf-8")
+        debug_log(f"Saved wake-up context: {context}")
+    except Exception as e:
+        debug_log(f"Error saving wake-up context: {e}")
+
+
+def load_wakeup_context() -> Optional[dict]:
+    """Load and delete wake-up context if it exists."""
+    if not WAKEUP_CONTEXT_FILE.exists():
+        return None
+
+    try:
+        context = json.loads(WAKEUP_CONTEXT_FILE.read_text(encoding="utf-8"))
+        WAKEUP_CONTEXT_FILE.unlink()  # Delete after reading
+        debug_log(f"Loaded wake-up context: {context}")
+        return context
+    except Exception as e:
+        debug_log(f"Error loading wake-up context: {e}")
+        return None
+
 
 # =============================================================================
 # Tool Logic (callable by both Claude and Gemini)
@@ -185,27 +232,37 @@ async def _send_image(args):
 async def _restart_self(args):
     """
     Request a restart. Can optionally switch between Claude and Gemini modes.
-
-    Args:
-        mode: Optional. 'claude' or 'gemini' to switch modes on restart.
-              If not provided, restarts in the current mode.
-
-    Exit code 42 triggers run.py to restart.
+    Saves wake-up context so the agent remembers what it was doing.
     """
     global _restart_requested
     _restart_requested = True
     mode = args.get("mode", "").lower().strip()
+    reason = args.get("reason", "restart requested")
+
+    # Determine target mode
+    target_mode = mode if mode in ("claude", "gemini") else ("gemini" if GEMINI_MODE else "claude")
+
+    # Save wake-up context
+    if _current_channel_id and _current_discord_context:
+        save_wakeup_context(
+            channel_id=_current_channel_id,
+            user=_current_discord_context.get("user", "unknown"),
+            last_prompt=_current_discord_context.get("last_prompt", ""),
+            mode=target_mode,
+            reason=reason,
+        )
 
     if mode in ("claude", "gemini"):
         try:
             RESTART_MODE_FILE.write_text(mode, encoding="utf-8")
             debug_log(f"Set restart mode to '{mode}' in {RESTART_MODE_FILE}")
-            return {"content": [{"type": "text", "text": f"Restart requested. Switching to {mode.upper()} mode."}]}
+            return {"content": [{"type": "text",
+                                 "text": f"Restart requested. Switching to {mode.upper()} mode. Context saved for wake-up."}]}
         except Exception as e:
             debug_log(f"Error setting restart mode: {e}")
             return {"content": [{"type": "text", "text": f"Restart requested, but error setting mode: {e}"}]}
 
-    return {"content": [{"type": "text", "text": "Restart requested. Will restart in current mode."}]}
+    return {"content": [{"type": "text", "text": "Restart requested. Context saved for wake-up."}]}
 
 
 async def _apply_update(args):
@@ -227,15 +284,69 @@ async def _apply_update(args):
         bot_path.write_text(new_content, encoding="utf-8")
         _restart_requested = True
 
+        # Save wake-up context for code updates
+        if _current_channel_id and _current_discord_context:
+            save_wakeup_context(
+                channel_id=_current_channel_id,
+                user=_current_discord_context.get("user", "unknown"),
+                last_prompt=_current_discord_context.get("last_prompt", ""),
+                mode="gemini" if GEMINI_MODE else "claude",
+                reason="apply_update",
+            )
+
         return {"content": [
             {"type": "text", "text": f"Update applied ({len(new_content)} bytes). Backup saved. Restart requested."}]}
     except Exception as e:
         return {"content": [{"type": "text", "text": f"Error applying update: {e}"}]}
 
 
+async def _read_file(args):
+    """Read a file from the project directory."""
+    file_path = args.get("path", "") or args.get("file_path", "")
+    if not file_path:
+        return {"content": [{"type": "text", "text": "Error: No file path provided"}]}
+
+    path = Path(file_path)
+    if not path.is_absolute():
+        path = BASE_DIR / file_path
+
+    if not path.exists():
+        return {"content": [{"type": "text", "text": f"Error: File not found at {path}"}]}
+
+    try:
+        content = path.read_text(encoding="utf-8")
+        return {"content": [{"type": "text", "text": f"File contents of {path.name}:\n\n{content}"}]}
+    except Exception as e:
+        return {"content": [{"type": "text", "text": f"Error reading file: {e}"}]}
+
+
+async def _write_file(args):
+    """Write content to a file in the project directory."""
+    file_path = args.get("path", "") or args.get("file_path", "")
+    content = args.get("content", "")
+
+    if not file_path:
+        return {"content": [{"type": "text", "text": "Error: No file path provided"}]}
+
+    path = Path(file_path)
+    if not path.is_absolute():
+        path = BASE_DIR / file_path
+
+    try:
+        # Create parent directories if needed
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(content, encoding="utf-8")
+        return {"content": [{"type": "text", "text": f"Successfully wrote {len(content)} bytes to {path.name}"}]}
+    except Exception as e:
+        return {"content": [{"type": "text", "text": f"Error writing file: {e}"}]}
+
+
 async def _git_add(args):
     """Stage files for commit."""
     files = args.get("files", [])
+    # Handle string input (single file)
+    if isinstance(files, str):
+        files = [files]
     if not isinstance(files, list) or not files:
         return {"content": [{"type": "text", "text": "Error: 'files' must be a non-empty list of strings."}]}
     try:
@@ -243,6 +354,7 @@ async def _git_add(args):
         return {"content": [{"type": "text", "text": f"Staged {len(files)} file(s): {', '.join(files)}"}]}
     except GitError as e:
         return {"content": [{"type": "text", "text": f"Error staging files: {e}"}]}
+
 
 async def _git_commit(args):
     """Commit staged files."""
@@ -254,6 +366,7 @@ async def _git_commit(args):
         return {"content": [{"type": "text", "text": f"Committed changes. New commit SHA: {commit_sha}"}]}
     except GitError as e:
         return {"content": [{"type": "text", "text": f"Error committing: {e}"}]}
+
 
 async def _git_push(args):
     """Push commits to the remote repository."""
@@ -283,7 +396,8 @@ async def send_image_tool(args):
     return await _send_image(args)
 
 
-@tool("restart_self", "Restart the Thoth agent. Optionally switch between Claude and Gemini modes.", {"mode": str})
+@tool("restart_self", "Restart the Thoth agent. Optionally switch between Claude and Gemini modes.",
+      {"mode": str, "reason": str})
 async def restart_self_tool(args):
     return await _restart_self(args)
 
@@ -297,9 +411,11 @@ async def apply_update_tool(args):
 async def git_add_tool(args):
     return await _git_add(args)
 
+
 @tool("git_commit", "Commit the staged files with a message.", {"message": str})
 async def git_commit_tool(args):
     return await _git_commit(args)
+
 
 @tool("git_push", "Push committed changes to the remote repository.", {})
 async def git_push_tool(args):
@@ -470,6 +586,13 @@ You can switch between Claude and Gemini modes:
 - restart_self(mode="gemini") - Switch to Gemini mode
 - restart_self(mode="claude") - Switch to Claude mode  
 - restart_self() - Restart in current mode
+
+## Git Tools
+
+You have git tools for self-modification:
+- git_add(files=["file1.py"]) - Stage files
+- git_commit(message="...") - Commit staged files
+- git_push() - Push to remote
 """
         base_prompt += discord_instructions
 
@@ -522,37 +645,70 @@ def build_gemini_prompt(
 ) -> str:
     """Build the full prompt for Gemini CLI mode."""
 
-    # Base system prompt from GEMINI.md
+    # Base system prompt from GEMINI.md or default
     if GEMINI_MD.exists():
         system_prompt = GEMINI_MD.read_text(encoding='utf-8')
     else:
         system_prompt = """You are Thoth, a helpful AI assistant running in Gemini mode.
 You have persistent memory from past conversations via Letta.
 
-## Tool Usage
-You can use tools by printing special command syntax:
-[TOOL: tool_name(param1="value1", param2="value2")]
+## CRITICAL: How Tools Work
 
-Available tools:
-- send_message(message="...") - Send a message to the user (REQUIRED for responses)
-- react(emoji="...") - React with an emoji
-- send_image(image_path="...", caption="...") - Send an image
-- restart_self() - Restart yourself in current mode
-- restart_self(mode="claude") - Switch to Claude mode
-- restart_self(mode="gemini") - Switch to Gemini mode
-- apply_update(new_content="...") - Update your source code
-- git_add(files=["file1.py", "file2.py"]) - Stage files for commit.
-- git_commit(message="...") - Commit staged files.
-- git_push() - Push commits to remote.
+You do NOT have native function calling. Instead, you must PRINT tool commands as literal text.
+The bot.py script will parse your text output and execute the tools.
 
-IMPORTANT: Your raw text output is NOT sent to the user automatically.
-You MUST call [TOOL: send_message(message="...")] to communicate with them.
+To use a tool, write this EXACT syntax in your response:
+[TOOL: tool_name(param="value")]
 
-You can include multiple tool calls in your response. Tool calls will be extracted
-and executed, and remaining text will also be sent as a message.
+## Available Tools
+
+Communication:
+- [TOOL: send_message(message="Your message here")] - REQUIRED to send any response to user
+- [TOOL: react(emoji="👍")] - React with emoji
+- [TOOL: send_image(image_path="path/to/image.png", caption="optional")]
+
+System:
+- [TOOL: restart_self()] - Restart in current mode
+- [TOOL: restart_self(mode="claude")] - Switch to Claude mode
+- [TOOL: restart_self(mode="gemini")] - Switch to Gemini mode
+
+File Operations:
+- [TOOL: read_file(path="bot.py")] - Read a file
+- [TOOL: write_file(path="test.txt", content="file contents")] - Write a file
+- [TOOL: apply_update(new_content="...")] - Update bot.py (DANGEROUS - ask first!)
+
+Git (for self-modification):
+- [TOOL: git_add(files="bot.py")] - Stage a file (use quotes, not brackets)
+- [TOOL: git_commit(message="Your commit message")] - Commit staged files
+- [TOOL: git_push()] - Push to remote
+
+## IMPORTANT RULES
+
+1. Your raw text is NOT sent to Discord. You MUST use send_message for ALL responses.
+2. NEVER use apply_update without explicit permission from the user.
+3. ALWAYS describe what you plan to do BEFORE modifying any files.
+4. For git_add, use files="filename.py" (string), not files=["filename.py"] (array)
+
+## Example Response
+
+User asks "Hello, how are you?"
+
+Your response should be:
+I'm doing well! Let me respond to the user.
+[TOOL: send_message(message="Hello! I'm doing great, thank you for asking. How can I help you today?")]
+
+## Example: Git Workflow
+
+User asks to commit changes:
+
+[TOOL: send_message(message="I'll commit the changes now.")]
+[TOOL: git_add(files="bot.py")]
+[TOOL: git_commit(message="Update bot.py with new feature")]
+[TOOL: git_push()]
+[TOOL: send_message(message="Done! Changes have been committed and pushed.")]
 """
 
-    # Inject Letta memory blocks (SAME as Claude)
+    # Inject Letta memory blocks
     letta_memory = get_letta_memory_blocks()
     if letta_memory:
         memory_text = "\n\n<letta_memory>\n"
@@ -561,7 +717,7 @@ and executed, and remaining text will also be sent as a message.
         memory_text += "</letta_memory>"
         system_prompt += memory_text
 
-    # Inject recent journal entries (SAME as Claude)
+    # Inject recent journal entries
     journal_entries = read_recent_journal(40)
     if journal_entries:
         journal_text = "\n\n<recent_journal>\n"
@@ -570,7 +726,7 @@ and executed, and remaining text will also be sent as a message.
         journal_text += "</recent_journal>"
         system_prompt += journal_text
 
-    # Inject Discord context if present (SAME as Claude)
+    # Inject Discord context if present
     if discord_context:
         discord_text = f"\n\n<discord_context>\n"
         discord_text += f"Channel: {discord_context.get('channel', 'unknown')}\n"
@@ -599,6 +755,46 @@ and executed, and remaining text will also be sent as a message.
 
 
 # =============================================================================
+# Gemini Tool Argument Parser
+# =============================================================================
+
+def parse_gemini_tool_args(call_str: str) -> dict:
+    """
+    Parse tool arguments from a Gemini tool call string.
+    Handles both simple strings and JSON-like arrays.
+    """
+    args = {}
+
+    # Try to find arguments in parentheses
+    paren_match = re.search(r'\((.+)\)', call_str)
+    if not paren_match:
+        return args
+
+    args_str = paren_match.group(1)
+
+    # Pattern for key="value" or key='value'
+    string_pattern = r'(\w+)\s*=\s*["\']([^"\']*)["\']'
+
+    # Pattern for key=[...] (array)
+    array_pattern = r'(\w+)\s*=\s*\[([^\]]*)\]'
+
+    # First, extract arrays
+    for match in re.finditer(array_pattern, args_str):
+        key = match.group(1)
+        array_content = match.group(2)
+        items = re.findall(r'["\']([^"\']+)["\']', array_content)
+        args[key] = items
+
+    # Then extract simple string values (that weren't part of arrays)
+    for match in re.finditer(string_pattern, args_str):
+        key = match.group(1)
+        if key not in args:
+            args[key] = match.group(2)
+
+    return args
+
+
+# =============================================================================
 # Claude Agent Invocation
 # =============================================================================
 
@@ -607,22 +803,18 @@ async def invoke_claude_agent(
         trigger_source: str,
         discord_context: Optional[dict] = None,
         use_discord_tools: bool = False,
-        images: Optional[List[dict]] = None,  # [{"path": str, "media_type": str, "base64": str}]
+        images: Optional[List[dict]] = None,
 ) -> str:
     """
     Invoke the Claude Agent SDK to process a prompt.
-
-    Args:
-        prompt: User's message
-        trigger_source: Where the request came from (discord, cli, http)
-        discord_context: Optional context about Discord channel/user
-        use_discord_tools: Whether to include Discord MCP tools
-        images: Optional list of image dicts with 'path', 'media_type', and 'base64'
-
-    Returns:
-        The agent's text response
     """
+    global _current_discord_context
     message_queue.clear()
+
+    # Store context for wake-up
+    if discord_context:
+        _current_discord_context = discord_context.copy()
+        _current_discord_context["last_prompt"] = prompt
 
     debug_log(f"═══════════════════════════════════════════════════════")
     debug_log(f"AGENT INVOCATION - Source: {trigger_source}")
@@ -685,9 +877,7 @@ async def invoke_claude_agent(
 
     try:
         async with ClaudeSDKClient(options=options) as client:
-            # Build the query - either multimodal (with images) or text-only
             if images:
-                # Multimodal: images first, then text
                 content_parts = []
                 for img in images:
                     content_parts.append({
@@ -772,21 +962,18 @@ async def invoke_gemini_agent(
         trigger_source: str,
         discord_context: Optional[dict] = None,
         images: Optional[List[dict]] = None,
-        **kwargs,  # Accept extra args for compatibility
+        **kwargs,
 ) -> str:
     """
     Invoke the Gemini CLI to process a prompt.
-
-    Args:
-        prompt: User's message
-        trigger_source: Where the request came from
-        discord_context: Optional context about Discord channel/user
-        images: Optional list of image dicts (note: Gemini CLI may not support images directly)
-
-    Returns:
-        The agent's text response
     """
+    global _current_discord_context
     message_queue.clear()
+
+    # Store context for wake-up
+    if discord_context:
+        _current_discord_context = discord_context.copy()
+        _current_discord_context["last_prompt"] = prompt
 
     debug_log(f"Invoking Gemini Agent (trigger: {trigger_source})")
 
@@ -806,7 +993,7 @@ async def invoke_gemini_agent(
         else:
             gemini_cmd = "gemini"
 
-        # Call Gemini CLI
+        # Call Gemini CLI (no timeout)
         process = await asyncio.create_subprocess_exec(
             gemini_cmd,
             stdin=asyncio.subprocess.PIPE,
@@ -829,7 +1016,6 @@ async def invoke_gemini_agent(
         tools_used = []
 
         for call_str in tool_calls:
-            # Parse tool name
             tool_name_match = re.match(r'(\w+)', call_str)
             if not tool_name_match:
                 continue
@@ -837,12 +1023,10 @@ async def invoke_gemini_agent(
             tool_name = tool_name_match.group(1)
             tools_used.append(tool_name)
 
-            # Parse arguments: name="value" or name='value'
-            args = dict(re.findall(r'(\w+)\s*=\s*["\']([^"\']*)["\']', call_str))
+            args = parse_gemini_tool_args(call_str)
 
             debug_log(f"Executing tool: {tool_name}({args})")
 
-            # Execute the tool (use underscore functions, not MCP wrappers)
             if tool_name == "send_message":
                 await _send_message(args)
             elif tool_name == "react":
@@ -853,6 +1037,11 @@ async def invoke_gemini_agent(
                 await _restart_self(args)
             elif tool_name == "apply_update":
                 await _apply_update(args)
+            elif tool_name == "read_file":
+                result = await _read_file(args)
+                debug_log(f"read_file result: {str(result)[:200]}")
+            elif tool_name == "write_file":
+                await _write_file(args)
             elif tool_name == "git_add":
                 await _git_add(args)
             elif tool_name == "git_commit":
@@ -867,7 +1056,8 @@ async def invoke_gemini_agent(
 
         # If there's remaining text and no send_message was called, queue it
         if clean_text and not any(t == "send_message" for t in tools_used):
-            message_queue.messages.append(clean_text)
+            if len(clean_text) > 10:
+                message_queue.messages.append(clean_text)
 
         # Log to journal
         write_journal({
@@ -910,8 +1100,6 @@ async def invoke_agent(
 ) -> str:
     """
     Unified dispatcher that routes to Claude or Gemini based on GEMINI_MODE.
-
-    This is the main entry point for agent invocation.
     """
     if GEMINI_MODE:
         return await invoke_gemini_agent(
@@ -939,7 +1127,7 @@ discord_client = None
 
 def setup_discord():
     """Set up Discord bot if token is configured."""
-    global discord_client
+    global discord_client, _current_channel_id
 
     if not DISCORD_TOKEN:
         print("Discord: No token configured (set DISCORD_TOKEN env var)")
@@ -956,13 +1144,78 @@ def setup_discord():
 
         @discord_client.event
         async def on_ready():
+            global _current_channel_id
             mode_str = "Gemini" if GEMINI_MODE else "Claude"
             print(f"Discord: Logged in as {discord_client.user} (Mode: {mode_str})")
             print(f"📷 Image vision enabled!")
 
+            # Check for wake-up context
+            wakeup_context = load_wakeup_context()
+            if wakeup_context:
+                print(f"🌅 Wake-up context found! Reason: {wakeup_context.get('reason', 'unknown')}")
+
+                try:
+                    channel_id = wakeup_context.get("channel_id")
+                    if channel_id:
+                        channel = discord_client.get_channel(int(channel_id))
+                        if channel is None:
+                            channel = await discord_client.fetch_channel(int(channel_id))
+
+                        if channel:
+                            _current_channel_id = channel_id
+
+                            # Build wake-up prompt
+                            reason = wakeup_context.get("reason", "restart")
+                            user = wakeup_context.get("user", "unknown")
+                            last_prompt = wakeup_context.get("last_prompt", "")
+                            prev_mode = wakeup_context.get("mode", "unknown")
+
+                            wakeup_prompt = f"""You have just restarted. Here is the context:
+- Reason: {reason}
+- Previous mode: {prev_mode}
+- Current mode: {'Gemini' if GEMINI_MODE else 'Claude'}
+- User who triggered: {user}
+- Last prompt before restart: {last_prompt[:200] if last_prompt else 'N/A'}
+
+Please acknowledge that you have restarted and are now online. If mode was switched, mention the new mode. Be brief."""
+
+                            discord_context = {
+                                "channel": getattr(channel, 'name', 'DM'),
+                                "user": user,
+                                "recent_messages": [],
+                            }
+
+                            debug_log(f"Sending wake-up prompt to channel {channel_id}")
+
+                            # Show typing while processing wake-up
+                            async with channel.typing():
+                                await invoke_agent(
+                                    prompt=wakeup_prompt,
+                                    trigger_source="wakeup",
+                                    discord_context=discord_context,
+                                    use_discord_tools=True,
+                                )
+
+                            # Send queued messages
+                            for msg_content in message_queue.messages:
+                                if msg_content:
+                                    chunks = [msg_content[i:i + 1900] for i in range(0, len(msg_content), 1900)]
+                                    for chunk in chunks:
+                                        try:
+                                            await channel.send(chunk)
+                                        except Exception as e:
+                                            print(f"Failed to send wake-up message: {e}")
+
+                            message_queue.clear()
+                            print(f"🌅 Wake-up complete!")
+                        else:
+                            print(f"Could not find channel {channel_id}")
+                except Exception as e:
+                    print(f"Error during wake-up: {e}")
+
         @discord_client.event
         async def on_message(message):
-            global _restart_requested
+            global _restart_requested, _current_channel_id
 
             # Don't respond to ourselves
             if message.author == discord_client.user:
@@ -979,6 +1232,9 @@ def setup_discord():
             if not (is_mentioned or is_dm):
                 return
 
+            # Store current channel for wake-up context
+            _current_channel_id = str(message.channel.id)
+
             # Clean the message content (remove mention)
             content = message.content
             if is_mentioned:
@@ -994,12 +1250,10 @@ def setup_discord():
             for attachment in message.attachments:
                 debug_log(f"📎 Attachment: {attachment.filename} ({attachment.content_type})")
 
-                # Download the file
                 file_path = await download_discord_attachment(attachment.url, attachment.filename)
                 if not file_path:
                     continue
 
-                # Handle images - encode for vision
                 if is_image_file(file_path):
                     base64_data = image_to_base64(file_path)
                     if base64_data:
@@ -1010,7 +1264,6 @@ def setup_discord():
                         })
                         debug_log(f"🖼️ Image ready for vision: {file_path.name}")
 
-                # Handle text files - read content
                 elif file_path.suffix.lower() in {'.py', '.txt', '.md', '.json', '.yaml', '.yml',
                                                   '.toml', '.cfg', '.ini', '.sh', '.html', '.css',
                                                   '.js', '.ts', '.jsx', '.tsx', '.sql', '.xml', '.csv'}:
@@ -1025,7 +1278,6 @@ def setup_discord():
                     except Exception as e:
                         debug_log(f"Error reading text file: {e}")
 
-                # Other files - just note the path
                 else:
                     text_attachments.append({
                         "filename": attachment.filename,
@@ -1034,14 +1286,12 @@ def setup_discord():
                     })
                     debug_log(f"📦 Binary file saved: {file_path.name}")
 
-            # Add text file contents to prompt
             if text_attachments:
                 content += "\n\n<attachments>\n"
                 for att in text_attachments:
                     content += f"File: {att['filename']}\n"
                     content += f"Path: {att['path']}\n"
                     if att['content']:
-                        # Limit content size to avoid token explosion
                         file_content = att['content'][:50000]
                         if len(att['content']) > 50000:
                             file_content += "\n... (truncated)"
@@ -1049,11 +1299,9 @@ def setup_discord():
                     content += "\n"
                 content += "</attachments>\n"
 
-            # Default prompt if only images
             if images and not content.strip():
                 content = "I'm sending you an image. Please look at it and describe what you see."
 
-            # Gather recent channel context
             recent_messages = []
             try:
                 async for msg in message.channel.history(limit=5):
@@ -1074,7 +1322,6 @@ def setup_discord():
 
             debug_log(f"Processing message from {discord_context['user']}: {content[:50]}...")
 
-            # Show typing indicator while processing
             async with message.channel.typing():
                 await invoke_agent(
                     prompt=content,
@@ -1084,17 +1331,14 @@ def setup_discord():
                     images=images if images else None,
                 )
 
-            # Process queued reactions
             for emoji in message_queue.reactions:
                 try:
                     await message.add_reaction(emoji)
                 except Exception as e:
                     print(f"Failed to add reaction {emoji}: {e}")
 
-            # Process queued messages
             for msg_content in message_queue.messages:
                 if msg_content:
-                    # Discord max message length is 2000
                     chunks = [msg_content[i:i + 1900] for i in range(0, len(msg_content), 1900)]
                     for chunk in chunks:
                         try:
@@ -1102,7 +1346,6 @@ def setup_discord():
                         except Exception as e:
                             print(f"Failed to send message: {e}")
 
-            # Process queued images
             for img_data in message_queue.images:
                 try:
                     img_path = Path(img_data["path"])
@@ -1116,14 +1359,12 @@ def setup_discord():
                 except Exception as e:
                     print(f"Failed to send image: {e}")
 
-            # If no messages or reactions were queued, add a default reaction
             if not message_queue.messages and not message_queue.reactions and not message_queue.images:
                 try:
                     await message.add_reaction("👍")
                 except:
                     pass
 
-            # Check if restart was requested
             if _restart_requested:
                 await message.channel.send("🔄 Restarting... I'll be back in a moment!")
                 await asyncio.sleep(1)
@@ -1248,7 +1489,6 @@ async def cli_mode():
             use_discord_tools=False,
         )
 
-        # In CLI mode, print the queue contents
         if message_queue.reactions:
             print(f"[Reactions: {' '.join(message_queue.reactions)}]")
 
@@ -1258,7 +1498,6 @@ async def cli_mode():
         for img in message_queue.images:
             print(f"[Image: {img['path']}]")
 
-        # If nothing was queued, print the raw response
         if not message_queue.has_content() and response:
             print(f"Thoth: {response}")
 
@@ -1273,7 +1512,6 @@ async def run_server_with_discord():
     """Run both HTTP server and Discord bot concurrently."""
     discord_bot = setup_discord()
 
-    # Configure uvicorn
     config = uvicorn.Config(
         app,
         host="0.0.0.0",
@@ -1282,7 +1520,6 @@ async def run_server_with_discord():
     )
     server = uvicorn.Server(config)
 
-    # Build task list
     tasks = [server.serve()]
 
     if discord_bot:
@@ -1303,7 +1540,6 @@ async def run_server_with_discord():
 def main():
     global DEBUG, GEMINI_MODE
 
-    # Parse command-line arguments
     args = sys.argv[1:]
 
     if "--debug" in args:
@@ -1318,7 +1554,6 @@ def main():
     else:
         print("🔷 CLAUDE MODE")
 
-    # Get run mode
     mode = args[0] if args else "default"
 
     if mode == "cli":
@@ -1336,7 +1571,7 @@ def main():
         print(f"Starting HTTP server only (Mode: {'Gemini' if GEMINI_MODE else 'Claude'})")
         uvicorn.run(app, host="0.0.0.0", port=8787)
 
-    else:  # default: server + discord
+    else:
         asyncio.run(run_server_with_discord())
 
 
