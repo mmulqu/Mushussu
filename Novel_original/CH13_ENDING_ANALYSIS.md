@@ -152,25 +152,7 @@ Ch13 notes: "she commits suicide, as the townspeople surround her"
 
 **Questions**:
 - **How does she die?**
-  - Self-inflicted wound? (knife? gun?)
-  - Sparagmos (ritual dismemberment by cult members while she's still alive?)
-  - Drowning? Exposure? Poison?
-- **Is it suicide or murder?**
-  - Notes say "suicide," but "townspeople surround her" implies they might **do the killing**
-  - Sparagmos = being torn apart by frenzied mob (cf. Orpheus, Pentheus in *Bacchae*)
-  - Does she **consent** to this? (voluntary sacrifice = suicide; forced = murder)
-
-**Tonal implications**:
-- **If suicide**: Nihilistic, existential, solitary (Persephone chooses oblivion)
-- **If sparagmos**: Ritualistic, communal, mythic (Persephone becomes sacrifice-victim, Dionysian scapegoat)
-
-**Narrative needs clarity on this.**
-
----
-
-### 7. **MISSING: Persephone's Interior Voice (Soliloquy)**
-
-Ch13 inspiration: "strong female soliloquy at the end (end of Finnegans Wake, and Ulysses)"
+### 2. **RESOLVED: Mike Was NEVER on the Rocket****✅ M's Clarification (2026-01-01 02:06 UTC)**:- **Mike was a LAST-MINUTE REPLACEMENT**—not on Ares I when it exploded- Had a **psychotic break** (mental illness episode) immediately after- **Drove directly to Maine** to find Persephone (his ex-wife, not-quite-divorced)**Narrative Now Clear**:- **Ch10**: Persephone watches Ares I explode on TV, THINKS Mike is dead- Grief + nihilism + "widow's escape" → has sex with James- **Ch12**: Mike shows up ALIVE in Maine—mentally unwell, obsessive, desperate- Persephone: shock, horror, guilt (she just cheated on a man in crisis)**"Agamemnon's Return" Title Perfect**:- Agamemnon returns from Trojan War to find wife Clytemnestra took lover Aegisthus- Mike returns from mission failure to find wife took lover James- Both husbands are **murdered** by wife/lover (Clytemnestra kills Agamemnon)**Mike = Tragic Victim, Not Villain**:- Mental illness + cuckolded + possibly murdered = sympathetic character- Persephone's guilt in Ch13 is now EARNED
 
 **Joyce's models**:
 - **Molly Bloom's monologue** (*Ulysses*): Stream-of-consciousness, unpunctuated, sensual, affirmative ("yes I said yes I will Yes")
