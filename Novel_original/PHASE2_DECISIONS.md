@@ -66,21 +66,28 @@
 
 ### Narrative Implications:
 
-**Critical correction**: Mike is **married to a man** (husband, not ex-wife). Persephone is NOT Mike's romantic partner—she's his colleague/friend.
+**🔴🔴🔴 CRITICAL CORRECTION (2026-01-12)**: **MIKE IS THE HUSBAND CHARACTER** 🔴🔴🔴
 
-**What This Changes**:
-- 🔴 **MAJOR CONTINUITY ERROR FIXED**: I incorrectly assumed Persephone = Mike's ex-wife
-- ✅ **Mike's husband is present at the Maine house** (arrival timing TBD)
-- ✅ **James is murdered by Mike's husband** (motive TBD in Question #3)
-- ✅ **Love triangle is NOT romantic**: Persephone/James/Mike dynamic is professional/friendship-based
-- ✅ **Mike's psychotic break context shifts**: He's not obsessed with "reclaiming" Persephone romantically—his motivation is different (see Question #3)
+**M's clarification (2026-01-12 20:22 UTC)**: Mike is NOT the astronaut colleague. Mike IS the husband who murders James.
 
-**New Questions This Raises**:
-1. When/how does Mike's husband arrive in Maine?
-2. Does husband follow Mike (worried about his mental state)?
-3. Does husband blame James for Mike's breakdown?
-4. Is husband also involved with the cult?
-5. What is Mike's true relationship with Persephone? (Colleagues? Friends? Former lovers before Mike came out? Platonic bond?)
+**What This ACTUALLY Means**:
+- ✅ **Mike = Persephone's ex-husband, Iphy's father** (co-parent relationship)
+- ✅ **Mike had psychotic break after being removed from Ares I crew**
+- ✅ **Mike drove to Maine to find Persephone** (his ex-wife)
+- ✅ **Mike murders James** (protective rage + compounded grief + misplaced blame)
+- ✅ **Mike's motivation**: Desperate ex-spouse trying to "save" Persephone from cult, scapegoats James
+- ✅ **Love triangle shifts**: Persephone (ex-wife), Mike (ex-husband, mentally ill), James (cult member grooming her)
+- ✅ **Iphy's death context**: Both parents blame each other for their daughter drowning
+- ✅ **Mike's psychotic break = compounded trauma**: Daughter's death + rocket explosion + replacement trauma + survivor's guilt
+
+**Previous error**: I misread M's answer as "Mike's husband murders James" when M actually meant "The husband (Mike) murders James."
+
+**Impact on Narrative**:
+- Mike is the primary tragic figure (Agamemnon archetype)
+- Mike's mental illness makes him dangerous but sympathetic
+- Persephone's Ch13 sacrifice is for her ex-husband (ethical responsibility to someone she once loved)
+- James is murdered by someone who sees him as stealing/corrupting Persephone
+- Greek tragedy intensified: ex-spouses, dead child, murder, sacrifice
 
 **Impact on Chapter 12**:
 - James is killed by Mike's husband (not Mike, not Persephone, not cult)
