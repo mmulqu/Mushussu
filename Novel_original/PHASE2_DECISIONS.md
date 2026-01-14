@@ -62,13 +62,11 @@
 
 ### M's Answer (2026-01-01 02:19 UTC):
 
-**Mike's husband murders James.**
+**Mike (Persephone's ex-husband, Iphy's father) murders James.**
 
-### Narrative Implications:
+### M's Critical Clarification (2026-01-14 19:55 UTC):
 
-**🔴🔴🔴 CRITICAL CORRECTION (2026-01-12)**: **MIKE IS THE HUSBAND CHARACTER** 🔴🔴🔴
-
-**M's clarification (2026-01-12 20:22 UTC)**: Mike is NOT the astronaut colleague. Mike IS the husband who murders James.
+**Mike is a HETEROSEXUAL MALE married to Persephone. There is NO "David" character. There is NO "Mike's husband."**
 
 **What This ACTUALLY Means**:
 - ✅ **Mike = Persephone's ex-husband, Iphy's father** (co-parent relationship)
@@ -90,55 +88,10 @@
 - Greek tragedy intensified: ex-spouses, dead child, murder, sacrifice
 
 **Impact on Chapter 12**:
-- James is killed by Mike's husband (not Mike, not Persephone, not cult)
-- This is a **crime of passion/protection** (husband defending Mike? Jealousy? Blame?)
-- Shifts moral weight: Is husband justified? Is James a victim? Is Mike complicit?
-
----
-
-## QUESTION #3: Husband's Murder Motivation - Why does Mike's husband kill James?
-
-**STATUS**: ✅ **RESOLVED** (M's choice: make it real with real psychology and stakes)
-
-### M's Answer (2026-01-01 02:19 UTC):
-
-**Thoth's choice: Make the motivation real with real psychology and stakes.**
-
-### My Decision:
-
-**Mike's husband kills James out of desperate protective love mixed with misplaced blame.**
-
-**Psychological Profile**:
-- **Husband's Name**: [TBD—needs to be established in earlier chapters]
-- **Background**: Husband has watched Mike deteriorate for months/years
-  - NASA's demands broke Mike psychologically
-  - Mike's obsession with Persephone (as colleague/friend/project partner) consumed him
-  - Husband felt abandoned, helpless, watching Mike spiral
-
-**The Murder Psychology**:
-1. **Protective Rage**: Husband arrives in Maine, finds Mike in full psychotic break
-2. **Scapegoating James**: Husband blames James for:
-   - "Stealing" Mike's attention (Persephone is with James, not helping Mike)
-   - The cult involvement (if husband knows about drugging/coercion)
-   - Mike's breakdown (irrational but emotionally true: "If you hadn't taken her away, Mike would be okay")
-3. **Snapping Point**: Husband sees James as the obstacle between Mike and salvation
-4. **Moral Complexity**:
-   - Husband is NOT a villain—he's a traumatized spouse
-   - James is NOT innocent—he participated in drugging Persephone
-   - Mike is NOT present/aware during murder (psychotic break means he's dissociated)
-   - Persephone witnesses this and must choose: call police? Protect husband? Use cult network to cover it up?
-
-**Real Stakes**:
-- Husband will go to prison (destroys what's left of Mike's support system)
-- Mike must live knowing his husband murdered someone "for him"
-- Persephone is morally implicated (she brought them all together)
-- James dies without redemption (no chance to explain/atone for his cult actions)
-
-**This Makes Chapter 13 Sacrifice Meaningful**:
-- Persephone sacrifices herself NOT for romantic love of Mike
-- But for **ethical responsibility**: She set these events in motion by coming to Maine
-- She sees Mike + Husband as victims of the same systems (NASA, capitalism, AI surveillance)
-- Her sacrifice is **political and compassionate**, not romantic
+- **Mike murders James** (psychotic break, protective rage toward ex-wife, scapegoating James for "stealing" Persephone)
+- This is a **crime of desperation** - Mike's mental illness makes him dangerous but sympathetic
+- Shifts moral weight: Mike is both victim (broken by systems) and perpetrator (murders James)
+- Persephone witnesses this and must choose: call police? Protect Mike? Flee?
 
 ---
 
@@ -263,7 +216,7 @@
 
 **His death in Chapter 12 becomes more complex**:
 - He dies believing he was righteous
-- Mike's husband kills someone who genuinely thought he was helping
+- Mike (in psychotic rage) kills someone who genuinely thought he was helping
 - Persephone must process: Was James evil? Misguided? Both?
 - No easy moral resolution
 
@@ -311,15 +264,15 @@
 
 ✅ **Chapter 13 sacrifice**: Persephone saves Mike DESPITE blaming him for Iphy's death → this is profound forgiveness/compassion
 
-✅ **Mike's husband's rage**: He's watching Mike be destroyed by grief over a daughter who died before husband was in the picture (complex stepfamily dynamics)
+✅ **Mike's rage**: Compounded trauma from daughter's death + crew replacement + survivor's guilt + witnessing Persephone with James (cult member who "stole" her)
 
 ✅ **Greek tragedy parallel intensifies**: Iphy = Iphigenia (sacrificed daughter), Persephone = Clytemnestra (mother avenging daughter), Mike = Agamemnon (father blamed for daughter's death)
 
 **Questions This Raises**:
-1. When did Mike come out / when did he meet his husband? (After Iphy's death? During marriage to Persephone?)
-2. Was Mike married to Persephone, or were they partners who never married?
-3. How long ago did Iphy die? (Years? Months?)
-4. Do cult members know about Iphy? Does James use this grief to manipulate Persephone?
+1. Was Mike married to Persephone, or were they partners who never married?
+2. How long ago did Iphy die? (Years? Months?)
+3. Do cult members know about Iphy? Does James use this grief to manipulate Persephone?
+4. What triggers Mike's psychotic break to escalate to murder?
 
 ---
 

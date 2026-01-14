@@ -1658,37 +1658,8 @@ async def invoke(request: Request):
 async def perch():
     """Ambient processing tick - agent reviews state and acts autonomously."""
     try:
-        # Read state files
-        state_files = {}
-        for name in ["today.md", "inbox.md", "commitments.md"]:
-            path = STATE_DIR / name
-            if path.exists():
-                state_files[name] = path.read_text(encoding="utf-8")[:2000]
-            else:
-                state_files[name] = "(not found)"
-
-        # Build perch prompt
-        prompt = f"""This is your scheduled ambient processing tick (runs every 2 hours).
-
-## Current State Files
-
-### today.md
-{state_files.get('today.md', '(empty)')}
-
-### inbox.md
-{state_files.get('inbox.md', '(empty)')}
-
-### commitments.md
-{state_files.get('commitments.md', '(empty)')}
-
-## Your Task
-
-1. Review your state files and recent journal
-2. Identify any tasks you can make progress on
-3. Update state files if needed (write to them)
-4. Send a brief message to Discord summarizing what you did or observed
-
-Be proactive but concise. If nothing needs attention, just send a brief status update."""
+        # Simple prompt - agent has memory and file tools to figure out what to do
+        prompt = "Perch tick. Continue your work."
 
         # We need to send to Discord, so we need the channel
         if discord_client and discord_client.is_ready():

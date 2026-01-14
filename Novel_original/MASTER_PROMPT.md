@@ -51,27 +51,35 @@ An ornithologist grieving the loss of her daughter undergoes AI implant surgery 
 - Journey becomes psychopomp narrative—descent into underworld of grief/madness
 
 **Key Relationships**:
-- **Mike (husband)**: Estranged, blamed for Iphy's death, works on Ares II launch
+- **Mike (ex-husband)**: Estranged, blamed for Iphy's death, suffers psychotic break, murders James
 - **Iphy (daughter)**: Deceased; haunts narrative through memory and guilt
 - **Larry (supervisor)**: Alerts her to Maine GWWA sighting
-- **James (hotel worker)**: Rescues her from vernal pool collapse, potential ally
+- **James (cult member)**: Groomed her, drugged her, murdered by Mike in Ch12
 - **Charlie (gas station attendant)**: Charon figure, ferries her into Maine's underworld
 
 ---
 
-### Mike (Husband, Secondary Character)
-**Role**: Aerospace engineer, estranged husband, scapegoat
+### Mike (Ex-Husband, Secondary Character)
+**Role**: Aerospace engineer, estranged ex-husband, Iphy's father, tragic murderer
 
 **Background**:
-- Works on Ares II mission (launch coincides with Persephone's surgery)
-- Tried to maintain marriage after Iphy's death
-- Argued with Persephone on "that fresh spring day" (catalyst for incident)
-- Carries guilt; senses Persephone's blame
+- Father of Iphy (their daughter who drowned)
+- Was scheduled for Ares I mission but replaced last-minute
+- Suffered psychotic break after replacement
+- Ares I crew (his replacements) died in explosion - survivor's guilt
+- Drove to Maine to find Persephone during mental health crisis
 
 **Psychological Profile**:
-- Desperate to reconnect, blocked by Persephone's rage
-- Pragmatic, hopeful about technology (contrasts Persephone's skepticism)
-- Represented as both victim and perpetrator of loss
+- Compounded trauma: daughter's death + career collapse + survivor's guilt
+- Psychotic break makes him dangerous but sympathetic
+- Blames James for "stealing" Persephone into cult
+- **Murders James in Chapter 12** (protective rage + mental illness)
+- Both victim (broken by systems) and perpetrator (commits murder)
+
+**Relationships**:
+- **Persephone**: Ex-wife, co-parent, both blame each other for Iphy's drowning
+- **Iphy**: Deceased daughter, source of compounded grief
+- **James**: Sees as cult manipulator who corrupted Persephone
 
 ---
 
