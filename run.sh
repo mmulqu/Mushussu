@@ -1,17 +1,16 @@
 #!/bin/bash
-
-# Auto-restart wrapper for Mushussu
-# Usage: bash run.sh
+source ~/.venv/thoth/bin/activate
+cd /mnt/c/Users/Mike/PycharmProjects/Thoth
 
 while true; do
     python bot.py
-    exit_code=$?
-
-    if [ $exit_code -eq 42 ]; then
-        echo "🔄 Restart requested (exit code 42), restarting in 2 seconds..."
+    EXIT_CODE=$?
+    echo "Bot exited with code $EXIT_CODE"
+    if [ $EXIT_CODE -eq 42 ]; then
+        echo "Restart requested, restarting in 2 seconds..."
         sleep 2
     else
-        echo "🛑 Bot stopped with exit code $exit_code"
+        echo "Normal exit, stopping."
         break
     fi
 done
