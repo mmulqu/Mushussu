@@ -22,10 +22,10 @@
 **This is the novel's peripeteia—the reversal that sets the final tragedy in motion.**
 
 **What This Chapter Accomplishes**:
-1. **Plot**: Mike + Husband arrive → confrontation → Husband murders James → Persephone flees with Mike into woods
-2. **Character**: Mike revealed as broken victim (not villain), Husband as desperate protector (not monster), James dies without redemption
+1. **Plot**: Mike arrives → confrontation → Mike murders James → Persephone sends Mike away, flees into woods
+2. **Character**: Mike revealed as broken victim AND perpetrator (psychotic break, compounded grief), James dies without redemption, Persephone's moral agency tested
 3. **Theme**: Systems destroy people—NASA, capitalism, surveillance state—individuals caught in gears
-4. **Relationship**: Persephone's moral agency tested—she must choose between calling police or protecting Mike
+4. **Relationship**: Persephone's moral agency tested—she must choose between calling police or protecting Mike (her ex-husband, father of her daughter)
 5. **Structure**: Bridges Ch11 nadir to Ch13 sacrifice—violence forces her into woods where cult will find her
 
 ---
@@ -34,15 +34,15 @@
 
 ### 1. **Agamemnon (Aeschylus)**
 - King returns from war, murdered by wife Clytemnestra
-- Mike = Agamemnon (broken leader returns from failed mission)
-- Husband = Clytemnestra (murders to protect family/avenge betrayal)
-- James = Cassandra (prophet/truth-teller killed alongside king)
-- **Use**: Ironic title—Mike is NOT the one who dies, but he's still destroyed
+- Mike = Agamemnon (broken leader returns from failed mission, BUT he's the murderer, not the victim—inverted)
+- James = Cassandra-figure (cult prophet murdered)
+- Persephone = Clytemnestra-figure (must choose whether to avenge/protect)
+- **Use**: Ironic title—Mike is NOT murdered, HE commits murder; still destroyed by systems
 
 ### 2. **Who's Afraid of Virginia Woolf? (Edward Albee)**
 - Domestic confrontation, past traumas erupting, illusions shattered
 - Couple's shared delusions collapse under outside scrutiny
-- **Use**: Dialogue rhythm for Mike + Husband scenes (married shorthand, bitter intimacy)
+- **Use**: Dialogue rhythm for Mike + Persephone scenes (ex-spouse shorthand, bitter intimacy, unresolved grief)
 
 ### 3. **No Country for Old Men (Cormac McCarthy)**
 - Sudden violence, moral ambiguity, characters unable to stop machinery of fate
@@ -59,17 +59,14 @@
 ## CRITICAL CONTEXT FROM PHASE 2 DECISIONS
 
 **Mike's Status**:
+- ✅ Ex-husband of Persephone, Iphy's father (HETEROSEXUAL MALE, not married to a man)
 - ✅ Was NEVER on Ares I rocket (last-minute replacement)
 - ✅ Had psychotic break immediately after being removed from crew
-- ✅ Drove to Maine to find Persephone (obsessive need for connection to Iphy through her)
+- ✅ Drove to Maine to find Persephone (obsessive need for connection to Iphy through her, compounded grief)
 - ✅ Ares I exploded while he was en route (survivor's guilt)
 - ✅ He is in full mental health crisis—dissociated, paranoid, desperate
-
-**Husband's Status**:
-- ✅ Mike is married to a man (name TBD—should be established in earlier chapters if possible)
-- ✅ Husband has watched Mike deteriorate for years under NASA pressure
-- ✅ Husband follows Mike to Maine (worried, protective, also traumatized)
-- ✅ Husband blames James for Mike's breakdown (scapegoating—irrational but emotionally true)
+- ✅ Still loves Persephone despite their separation; blames himself AND her for Iphy's death
+- ✅ Sees James as threat (cult member who "stole" his ex-wife)
 
 **James's Status**:
 - ✅ True believer cult member who groomed/drugged Persephone
@@ -91,7 +88,7 @@
 
 ---
 
-## SCENE STRUCTURE (8 Scenes)
+## SCENE STRUCTURE (6 Scenes - REVISED)
 
 ### **SCENE 1: MIKE'S ARRIVAL** (~30-40 lines)
 
@@ -129,240 +126,202 @@
 
 ---
 
-### **SCENE 2: HUSBAND'S ARRIVAL** (~25-35 lines)
-
-**Setting**: Same room, 10-15 minutes later
-**Action**:
-- Standoff continues—Mike sitting on floor near Persephone, James watching from kitchen
-- Another car pulls up (they all hear it)
-- Door opens: **Husband enters**
-- Husband: clean-shaven, exhausted, professional clothes wrinkled from travel
-- Sees Mike on floor: "Oh, thank god. Mike. Mike, look at me."
-- Mike doesn't respond
-- Husband turns to James + Persephone: "I'm sorry. I'm his husband. He left three days ago. He's not well."
-
-**Dialogue**:
-- James: "We can see that."
-- Husband: "I've been trying to find him. He turned off his phone. I called hospitals, police—" (voice breaks)
-- Persephone: "He just got here. We were... we were just talking."
-- Husband looks at Persephone: "You're Persephone? From the lab?"
-- Persephone nods
-- Husband: "He talks about you. A lot. After Iphy—" (stops himself)
-- (REVEAL to reader: shared history, dead daughter)
-- Husband kneels by Mike: "Baby, we need to go home. You need help. Come with me."
-- Mike: "I'm not leaving without Persephone."
-- Husband: "Persephone doesn't need to come. Just you and me."
-- Mike: "She's the only one who understands. About Iphy."
-
-**Tone**: Husband is calm, rational, grief-stricken—sympathetic figure
-
-**Key Details**:
-- Husband's name revealed in dialogue (suggestion: **David** or **Nathan**—something grounded, not symbolic)
-- Husband addresses Mike with genuine love ("baby")
-- Mike fixated on Persephone as only link to Iphy's memory
-- James is silent, watching, calculating
-
----
-
-### **SCENE 3: JAMES INTERVENES** (~20-30 lines)
+### **SCENE 2: ESCALATION** (~30-40 lines)
 
 **Setting**: Same room, tension escalating
 **Action**:
-- James steps forward: "I think you both should leave. Persephone's not going anywhere."
-- Husband: "I'm not trying to take her. I just want to take Mike home."
-- James: "She's not interested in going with him. She's staying here."
-- Husband: "I didn't ask her to go with him—"
-- James: "You people need to leave. Now."
-- Husband: "Excuse me?"
-- James: "I don't know what you want from her, but she's been through enough. Mike showing up here—this isn't okay."
+- Mike starts pacing: "Perse, who is this guy? Why are you here?"
+- James: "I think you should leave. Persephone's not going anywhere with you."
+- Mike: "I wasn't asking you."
+- James steps between Mike and Persephone: "She's staying here. She's safe here."
+- Mike: "Safe? From what?"
+- James: "From NASA. From the surveillance state. From all the people who want to control her."
 
 **Dialogue**:
-- Persephone: "James, stop—"
-- James: "No. You don't owe them anything. Not after—" (stops—almost reveals Iphy backstory he shouldn't know about unless she told him)
-- Husband: "After what?"
-- James: "After what happened to your daughter."
-- (Husband freezes)
-- Husband: "How do you know about that?"
-- James: "Persephone told me."
-- Husband turns to Persephone: "You told him? You never told anyone. Not even the therapist."
+- Persephone: "James, please—"
+- James: "No. You don't owe him anything. Not after what happened to your daughter."
+- (Mike freezes)
+- Mike: "What did you say?"
+- James: "Iphy. Persephone told me. About the drowning."
+- Mike: "You told him?" (turns to Persephone, betrayed)
 - Persephone: "I—yes. I told him."
-- Husband: "What else did you tell him?"
+- Mike: "You never told anyone. Not even the therapist. But you told HIM?"
+- James: "She needed someone who would listen without judgment."
+- Mike: "Who the FUCK are you?"
 
-**Tone**: Shift from domestic negotiation to interrogation—Husband's protective instincts aroused
+**Tone**: Mike's dissociation breaking—rage surfacing
 
 **Key Details**:
-- Husband starts to see James as threat (not just stranger, but someone with intimate knowledge)
-- Persephone caught between loyalties (James gave her refuge, Mike/Husband share grief)
-- Mike still dissociated on floor (not participating, just staring)
+- Mike sees James as someone who took his place (intimate knowledge of Iphy = violation)
+- James's protectiveness triggers Mike's possessive anger
+- Persephone caught between them, unable to de-escalate
 
 ---
 
-### **SCENE 4: THE ACCUSATION** (~30-40 lines)
+### **SCENE 3: THE ACCUSATION** (~30-40 lines)
 
-**Setting**: Same room, Husband's rage building
+**Setting**: Same room, Mike's rage building
 **Action**:
-- Husband: "Who are you? Really?"
+- Mike: "Who are you? Really?"
 - James: "I already told you. I live here. Persephone's staying with me."
-- Husband: "Why?"
-- James: "That's between us."
-- Husband: "She came here running from something. What was she running from?"
-- James: "From all of you. The lab. NASA. The fucking surveillance state."
-- Husband: "You don't know anything about her."
-- James: "I know she can't be around AI anymore. I know the implant was killing her. I know she needed to disappear."
-- Husband: "And you just happened to be here? In the middle of nowhere?"
+- Mike: "Why? What the fuck is she doing here?"
+- James: "She came here to get away from people like you."
+- Mike: "People like me?"
+- James: "NASA. The lab. The surveillance state. The people who put that implant in her head."
+- Mike: "I didn't—" (stops, realizes James knows about the implant)
+- Mike: "And you just happened to be here? In the middle of nowhere? Waiting for her?"
 
 **Dialogue**:
-- Husband: "What are you? Some kind of cult?"
+- Mike: "What are you? Some kind of cult?"
 - (James goes still)
-- Husband: "Oh my god. You're one of them. The network people."
+- Mike: "Oh my god. You're one of them. The network people."
 - James: "I don't know what you're talking about."
-- Husband: "Yes you do. Mike told me. Before he left. He said Persephone was talking about some animal consciousness group. Drugging people. Making them think they could talk to birds."
+- Mike: "Yes you do. Persephone told me. Before she disappeared. Some animal consciousness group. Drugging people. Making them think they could talk to birds."
 - James: "That's not—it's not like that—"
-- Husband: "Did you drug her?"
+- Mike: "Did you drug her?"
 - James: "It was consensual—"
-- Husband: "Did. You. Drug. Her."
+- Mike: "Did. You. Drug. Her."
 - (Silence)
 - Persephone: "He didn't force me—"
-- Husband: "Jesus Christ."
+- Mike: "Jesus Christ. Jesus fucking Christ."
 
-**Tone**: Husband's protectiveness metastasizing into rage—he's found a target for all his helplessness
+**Tone**: Mike's protectiveness metastasizing into rage—he's found a target for all his helplessness
 
 **Key Details**:
-- Husband makes cognitive leap: cult + Mike's breakdown = James is responsible
+- Mike makes cognitive leap: cult + Persephone's disappearance = James is responsible for everything
 - James's defense sounds hollow (even to Persephone)
-- Mike remains dissociated (ironic: Husband is fighting for Mike, but Mike isn't present)
+- Mike's psychotic break crystallizing into violent purpose
 
 ---
 
-### **SCENE 5: THE MURDER** (~40-50 lines)
+### **SCENE 4: THE MURDER** (~40-50 lines)
 
 **Setting**: Same room, violence erupts
 **Action**:
-- Husband: "You broke him. He was fine until she left the lab. Then she disappeared. Then he started losing it. He thought—he thought they were coming for him too."
+- Mike: "You broke her. She was fine until she met you. Then she left the lab. Then she disappeared. Then I started—" (voice breaks)
 - James: "I didn't break anyone—"
-- Husband: "He lost the mission because of you. They took him off the crew because he was obsessed with finding her. His career is over. His life is over. And now he's—" (gestures at Mike on floor)
-- James: "That's not my fault—"
-- Husband: "You took her away and you BROKE HIM—"
-- (Husband lunges at James)
+- Mike: "I lost the mission because of you. They took me off the crew because I was obsessed with finding her. My career is over. My life is over. And Persephone—what did you DO to her?"
+- James: "I loved her—"
+- Mike: "You DRUGGED her—"
+- (Mike lunges at James)
 
 **Violence Choreography**:
-- Husband grabs James by shirt, slams him against wall
+- Mike grabs James by shirt, slams him against wall
 - James tries to push him off: "Get off me—"
-- Husband punches James in face (nose breaks, blood)
-- Persephone screaming: "Stop—stop—"
+- Mike punches James in face (nose breaks, blood)
+- Persephone screaming: "Mike—MIKE STOP—"
 - James stumbles toward kitchen, grabs for knife block
-- Husband sees this, grabs James's wrist, they struggle
+- Mike sees this, grabs James's wrist, they struggle
 - Knife falls
-- Husband gets hands around James's throat
-- James clawing at Husband's hands, gasping
-- Persephone: "David—DAVID STOP—" (or whatever Husband's name is)
-- Husband: "He destroyed everything—"
+- Mike gets hands around James's throat
+- James clawing at Mike's hands, gasping
+- Persephone: "MIKE—MIKE PLEASE—"
+- Mike: "He destroyed everything—he took you away—Iphy—the rocket—everything—"
 - James's face goes purple
-- Persephone tries to pull Husband off (too weak, still recovering from Ch11)
-- Mike watches from floor (dissociated, not intervening)
+- Persephone tries to pull Mike off (too weak, still recovering from Ch11)
 - James stops moving
-- Husband holds on for 30 more seconds (making sure)
+- Mike holds on for 30 more seconds (making sure)
 - Releases
 - James collapses
 - Silence
+- Mike collapses against wall, sobbing: "Oh god. Oh god. What did I do?"
 
 **Tone**: Brutal, fast, unstoppable—not cinematic, just ugly
 
 **Key Details**:
-- Murder is NOT premeditated (Husband snaps)
-- But Husband DOESN'T stop once James is unconscious (this is intentional killing, not manslaughter)
+- Murder is NOT premeditated (Mike snaps)
+- But Mike DOESN'T stop once James is unconscious (this is intentional killing, not manslaughter)
 - Persephone witnesses but cannot stop it (moral impotence)
-- Mike's dissociation is eerie—he doesn't react at all (shows depth of his break)
-- Husband collapses after, sobbing (realizes what he's done)
+- Mike's psychotic break reaches climax—then shatters into horror/remorse
+- Mike collapses after, sobbing (realizes what he's done)
 
 ---
 
-### **SCENE 6: AFTERMATH** (~30-40 lines)
+### **SCENE 5: AFTERMATH** (~30-40 lines)
 
 **Setting**: Same room, immediate aftermath
 **Action**:
-- Husband sitting on floor, hands shaking, James's body nearby
+- Mike sitting on floor, hands shaking, James's body nearby
 - Persephone frozen, staring
-- Mike stands up (finally responds): "We should go now."
-- Husband looks up at Mike: "Oh god. Oh god, what did I do?"
-- Mike: "You protected me. That's what you always do."
-- Husband: "I killed him. I killed him. We have to call—we have to—"
-- Mike: "Persephone, get your things. We're leaving."
+- Mike looks at his hands (blood on knuckles): "I didn't—I didn't mean to—"
+- Mike: "He was going to—the knife—he was—"
+- Persephone: "Mike."
+- Mike looks up at her: "He took you. He drugged you. He—"
+- Persephone: "Mike. James is dead."
 
 **Dialogue**:
-- Persephone: "We have to call the police."
-- Mike: "No."
-- Persephone: "James is dead. We have to—"
-- Mike: "He was going to kill David. You saw it. The knife."
-- Persephone: "That's not what happened—"
-- Mike: "That's what happened. David was defending himself."
-- Husband: "Mike, stop—"
-- Mike: "Get up. We're going."
-- Husband: "I can't—I need to—"
-- Mike: "You need to come with me. Right now. Before someone sees."
+- Mike: "We have to call the police. I killed him. I have to—"
+- Persephone: "Yes. We have to call them."
+- Mike: "They'll—they'll arrest me. Prison. I can't—Perse, I can't—"
+- Persephone: "You killed him, Mike."
+- Mike: "It was self-defense. You saw it. The knife."
+- Persephone: "That's not what happened."
+- Mike: "He was reaching for the knife—"
+- Persephone: "After you attacked him."
+- (Silence)
+- Mike: "I'm sorry. I'm so sorry. About everything. About Iphy. About—"
+- Persephone: "I know."
 
-**Tone**: Persephone's agency erodes—Mike takes command (psychotic but decisive)
+**Tone**: Mike's delusion cracking—reality setting in
 
 **Key Details**:
-- Mike constructs false narrative (self-defense) immediately
-- Husband in shock, can't process
-- Persephone faces moral choice: call police (Husband goes to prison, Mike collapses) OR flee with them (complicit in covering up murder)
-- Her implant flickering: *incoming data—police database—witness protocols—flight risk assessment*
+- Mike tries to construct false narrative (self-defense) but can't sustain it
+- Persephone faces moral choice: call police (Mike goes to prison) OR help him flee (complicit in covering up murder)
+- Her implant flickering: *incoming data—police database—witness protocols—flight risk assessment—ERROR ERROR ERROR*
 
 ---
 
-### **SCENE 7: THE CHOICE** (~25-35 lines)
+### **SCENE 6: THE CHOICE** (~25-35 lines)
 
 **Setting**: Same room, Persephone decides
 **Action**:
 - Persephone looks at James's body (no movement, eyes open, bruises on throat)
-- Looks at Husband (destroyed, sobbing)
-- Looks at Mike (hollow, commanding)
+- Looks at Mike (destroyed, sobbing, broken)
 - Her implant: *moral calculus loading—utilitarianism—deontology—virtue ethics—ERROR ERROR ERROR*
 
 **Internal Monologue**:
-- *If I call police: Husband arrested. Mike institutionalized. James still dead. Nothing fixed.*
-- *If I don't call: Murder unsolved. I'm complicit. But Mike + Husband might survive.*
+- *If I call police: Mike arrested. Prison. Or institutionalized. James still dead. Nothing fixed.*
+- *If I don't call: Murder unsolved. I'm complicit. But Mike might survive.*
 - *What would Iphy want? (Image of daughter's face, underwater, eyes open)*
 - *James drugged me. Groomed me. Used me for his cult. Does he deserve justice? Do I owe him that?*
-- *David killed to protect Mike. That's love. Terrible love. But love.*
+- *Mike killed to protect me. That's what he thinks. Terrible love. But love.*
 - *Mike is broken because the systems broke him. NASA. Capitalism. The same machines that killed Iphy.*
-- *I can't save James. I can maybe save them.*
+- *I can't save James. I can maybe save Mike.*
 
 **Dialogue**:
-- Persephone: "Okay."
-- Mike: "Okay what?"
-- Persephone: "Okay, we go. But not together. You two take David's car. Drive south. Find a hospital in Massachusetts. Tell them David had a breakdown, you're checking him in."
+- Persephone: "You have to leave. Now."
+- Mike: "I can't—I have to call—"
+- Persephone: "Mike. Get in your car. Drive south. Find a hospital in Massachusetts. Check yourself in. Tell them you're having a breakdown."
 - Mike: "What about you?"
-- Persephone: "I'll stay. Clean up. Make it look like James left. Then I'll go into the woods."
-- Husband: "We can't just leave you—"
-- Persephone: "You have to. If we're all together, they'll find us. If I'm separate, I can... I can handle it."
-- Mike: "The cult. They'll find you."
+- Persephone: "I'll stay. Clean up. Make it look like James left. Then I'll disappear."
+- Mike: "They'll find you. The cult."
 - Persephone: "I know."
+- Mike: "Perse—"
+- Persephone: "GO. Before someone sees."
 
 **Tone**: Persephone's agency returns—she makes a choice (morally ambiguous, but active)
 
 **Key Details**:
-- She's not fleeing WITH them—she's protecting them by separating
+- She's not fleeing WITH him—she's protecting him by sending him away
 - She accepts cult will find her (sets up Ch13)
-- Her plan: erase evidence, disappear into woods, lead cult away from Mike + Husband
+- Her plan: erase evidence, disappear into woods, lead cult away from Mike
 - This is the beginning of her sacrifice (not Ch13's final act, but the decision that leads there)
 
 ---
 
-### **SCENE 8: FLIGHT INTO WOODS** (~20-30 lines)
+### **SCENE 7: FLIGHT INTO WOODS** (~20-30 lines)
 
 **Setting**: Farmhouse → driveway → woods edge
 **Action**:
-- Mike leads Husband to car (Husband stumbling, in shock)
+- Mike stumbles to car (in shock, broken)
 - Persephone watches from porch
 - Mike pauses before getting in: "Perse. I'm sorry. About Iphy. I'm so sorry."
 - Persephone: "I know."
 - Mike: "I should have been watching her."
 - Persephone: "We both should have been."
 - (First time they've acknowledged shared guilt)
-- Mike: "If I don't—if we don't make it—"
-- Persephone: "You'll make it. Take care of him."
+- Mike: "If I don't—if I don't make it—"
+- Persephone: "You'll make it. Go."
 - Car drives away
 
 **Persephone Alone**:
@@ -382,7 +341,7 @@
 **Key Details**:
 - She doesn't call police (complicit now)
 - She doesn't clean up James's body (that was a lie to get Mike to leave)
-- She's going into woods to lead cult AWAY from Mike + Husband (sacrificial logic beginning)
+- She's going into woods to lead cult AWAY from Mike (sacrificial logic beginning)
 - Golden-winged Warbler = signal that cult is near (callback to Ch13 setup)
 - Chapter ends with her entering wilderness—threshold into final act
 
@@ -391,26 +350,26 @@
 ## CRITICAL THEMES & MOTIFS
 
 **Greek Tragedy Elements**:
-- **Hamartia** (tragic flaw): Persephone's need to help Mike despite knowing it's dangerous
-- **Peripeteia** (reversal): Husband murders James (sudden violence changes everything)
+- **Hamartia** (tragic flaw): Mike's psychotic break + compounded grief; Persephone's need to help Mike despite knowing it's dangerous
+- **Peripeteia** (reversal): Mike murders James (sudden violence changes everything)
 - **Anagnorisis** (recognition): Persephone + Mike finally acknowledge shared guilt over Iphy
 - **Catharsis** (emotional purge): Reader experiences horror of senseless violence (no heroes, only victims)
 
 **Moral Ambiguity**:
-- ✅ Husband = murderer, but sympathetic (protective love)
+- ✅ Mike = murderer, but sympathetic (psychotic break, protective love toward ex-wife, compounded grief)
 - ✅ James = victim, but not innocent (cult grooming, drugging)
-- ✅ Persephone = complicit, but ethical (chooses lesser evil)
-- ✅ Mike = catalyst, but not responsible (broken by systems)
+- ✅ Persephone = complicit, but ethical (chooses lesser evil—protects Mike instead of calling police)
+- ✅ Mike = both victim AND perpetrator (broken by systems, but commits murder)
 
 **Systemic Violence**:
-- NASA's pressure broke Mike → Mike's breakdown broke Husband → Husband killed James
+- NASA's pressure broke Mike → Mike's breakdown led to obsessive need to find Persephone → Mike killed James
 - Chain of causation traces back to institutions, not individuals
 - No villain—just people crushed by gears of capitalism, surveillance, military-industrial complex
 
 **Parental Grief**:
 - Mike + Persephone's first honest conversation about Iphy ("We both should have been watching")
-- Husband's violence = displaced rage at systems that killed his marriage
-- Persephone's sacrifice (Ch13) = displaced maternal protection (can't save Iphy, tries to save Mike)
+- Mike's violence = displaced rage at systems (NASA, cult) + compounded grief (daughter's death + rocket explosion + replacement trauma)
+- Persephone's sacrifice (Ch13) = displaced maternal protection (can't save Iphy, tries to save Mike—her daughter's father)
 
 ---
 
@@ -429,9 +388,9 @@
 - ✅ James's death = removes romantic subplot, clarifies sacrifice is ethical (not romantic)
 
 **What Needs Establishment in Earlier Chapters** (Phase 4 revisions):
-- 🔴 Husband's name + brief appearance in Ch1-5 (currently he's introduced in Ch12 with no setup)
-- 🔴 Mike's marital status clarified (currently novel implies Mike = Persephone's ex-romantic-partner)
+- 🔴 Mike's marital status clarified (currently novel implies Mike = colleague, needs to establish he's Persephone's ex-husband, Iphy's father)
 - 🔴 Iphy as daughter (not sister) needs clearer setup in Ch1-6
+- 🔴 Mike and Persephone's marriage/divorce needs establishment
 - 🔴 Golden-winged Warbler obsession needs seeding in Ch1-10 (for Ch13 payoff)
 
 ---
@@ -441,14 +400,14 @@
 **Tone**:
 - ✅ Understated violence (no melodrama—flat, McCarthy-esque efficiency)
 - ✅ Persephone's dissociation (she's watching herself make choices, not fully present)
-- ✅ Husband's humanity (even in murder, he's sympathetic—grief-driven, not evil)
-- ✅ Mike's eerie calm (psychotic break = inappropriate affect)
+- ✅ Mike's humanity (even in murder, he's sympathetic—psychotic break, grief-driven, not evil)
+- ✅ Mike's eerie dissociation before murder, then breakdown after (psychotic break = inappropriate affect → shattering realization)
 
 **Avoid**:
 - ❌ Victim-blaming James (he's culpable for cult actions, but murder is still wrong)
 - ❌ Heroizing Persephone (her choice is pragmatic, not noble—she's just trying to minimize harm)
 - ❌ Explaining too much (reader should feel disoriented, like Persephone)
-- ❌ Melodramatic dialogue (keep it clipped, realistic, Albee-style married shorthand)
+- ❌ Melodramatic dialogue (keep it clipped, realistic, Albee-style ex-spouse shorthand—bitter intimacy, unresolved grief)
 
 **Stylistic Notes**:
 - **Dialogue**: Short sentences, interruptions, people talking past each other
@@ -463,14 +422,13 @@
 | Scene | Estimated Lines |
 |-------|----------------|
 | 1. Mike's Arrival | 30-40 |
-| 2. Husband's Arrival | 25-35 |
-| 3. James Intervenes | 20-30 |
-| 4. The Accusation | 30-40 |
-| 5. The Murder | 40-50 |
-| 6. Aftermath | 30-40 |
-| 7. The Choice | 25-35 |
-| 8. Flight into Woods | 20-30 |
-| **TOTAL** | **~220-280 lines** |
+| 2. Escalation | 30-40 |
+| 3. The Accusation | 30-40 |
+| 4. The Murder | 40-50 |
+| 5. Aftermath | 30-40 |
+| 6. The Choice | 25-35 |
+| 7. Flight into Woods | 20-30 |
+| **TOTAL** | **~205-275 lines** |
 
 ---
 
