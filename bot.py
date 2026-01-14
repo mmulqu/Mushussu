@@ -4,7 +4,7 @@
 Thoth Agent - A stateful AI assistant built on Claude Agent SDK + Letta Memory + Discord
 Inspired by Strix: https://timkellogg.me/blog/2025/05/23/strix
 
-v2.8 - Fixed multimodal image handling
+v2.9 - Added Letta memory manipulation tools
 
 Key insight from Strix: "Replies as tools" - the agent explicitly calls send_message
 when it wants to communicate, rather than just outputting text.
@@ -193,6 +193,67 @@ def load_wakeup_context() -> Optional[dict]:
 
 
 # =============================================================================
+# Letta Memory & Journal
+# =============================================================================
+
+def get_letta_client():
+    """Get Letta client instance."""
+    try:
+        from letta_client import Letta
+        return Letta(base_url=LETTA_BASE_URL)
+    except ImportError:
+        debug_log("letta_client not installed")
+        return None
+    except Exception as e:
+        debug_log(f"Letta client error: {e}")
+        return None
+
+
+def get_letta_memory_blocks() -> dict[str, str]:
+    """Fetch memory blocks from Letta agent."""
+    if not LETTA_AGENT_ID:
+        debug_log("No LETTA_AGENT_ID configured")
+        return {}
+
+    client = get_letta_client()
+    if not client:
+        return {}
+
+    try:
+        blocks = client.agents.blocks.list(agent_id=LETTA_AGENT_ID)
+        memory = {block.label: block.value for block in blocks}
+        debug_log(f"Loaded {len(memory)} Letta memory blocks")
+        return memory
+    except Exception as e:
+        debug_log(f"Letta memory fetch error: {e}")
+        return {}
+
+
+def write_journal(entry: dict):
+    """Append an entry to the journal log."""
+    journal_path = LOGS_DIR / "journal.jsonl"
+    entry["t"] = datetime.now(timezone.utc).isoformat()
+
+    with open(journal_path, "a", encoding="utf-8") as f:
+        f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+
+
+def read_recent_journal(n: int = 40) -> list[dict]:
+    """Read the most recent journal entries."""
+    journal_path = LOGS_DIR / "journal.jsonl"
+    if not journal_path.exists():
+        return []
+
+    try:
+        with open(journal_path, "r", encoding="utf-8") as f:
+            lines = f.readlines()[-n:]
+        return [json.loads(line) for line in lines if line.strip()]
+    except Exception as e:
+        debug_log(f"Journal read error: {e}")
+        return []
+
+
+# =============================================================================
 # Tool Logic (callable by both Claude and Gemini)
 # =============================================================================
 
@@ -378,6 +439,126 @@ async def _git_push(args):
 
 
 # =============================================================================
+# Letta Memory Tools
+# =============================================================================
+
+async def _memory_list(args):
+    """List all available Letta memory blocks."""
+    if not LETTA_AGENT_ID:
+        return {"content": [{"type": "text", "text": "Error: LETTA_AGENT_ID not configured"}]}
+
+    client = get_letta_client()
+    if not client:
+        return {"content": [{"type": "text", "text": "Error: Could not connect to Letta"}]}
+
+    try:
+        blocks = list(client.agents.blocks.list(agent_id=LETTA_AGENT_ID))
+        block_info = []
+        for block in blocks:
+            block_info.append(f"- {block.label}: {len(block.value)} chars")
+
+        result = f"Memory blocks ({len(blocks)}):\n" + "\n".join(block_info)
+        return {"content": [{"type": "text", "text": result}]}
+    except Exception as e:
+        return {"content": [{"type": "text", "text": f"Error listing memory blocks: {e}"}]}
+
+
+async def _memory_read(args):
+    """Read a specific Letta memory block."""
+    label = args.get("label", "")
+    if not label:
+        return {"content": [{"type": "text", "text": "Error: No label provided"}]}
+
+    if not LETTA_AGENT_ID:
+        return {"content": [{"type": "text", "text": "Error: LETTA_AGENT_ID not configured"}]}
+
+    client = get_letta_client()
+    if not client:
+        return {"content": [{"type": "text", "text": "Error: Could not connect to Letta"}]}
+
+    try:
+        blocks = client.agents.blocks.list(agent_id=LETTA_AGENT_ID)
+        for block in blocks:
+            if block.label == label:
+                return {"content": [{"type": "text", "text": f"Memory block '{label}':\n\n{block.value}"}]}
+        return {"content": [
+            {"type": "text", "text": f"Memory block '{label}' not found. Use memory_list to see available blocks."}]}
+    except Exception as e:
+        return {"content": [{"type": "text", "text": f"Error reading memory: {e}"}]}
+
+
+async def _memory_update(args):
+    """Update a Letta memory block (replace entire content)."""
+    label = args.get("label", "")
+    value = args.get("value", "")
+
+    if not label:
+        return {"content": [{"type": "text", "text": "Error: No label provided"}]}
+
+    if not LETTA_AGENT_ID:
+        return {"content": [{"type": "text", "text": "Error: LETTA_AGENT_ID not configured"}]}
+
+    client = get_letta_client()
+    if not client:
+        return {"content": [{"type": "text", "text": "Error: Could not connect to Letta"}]}
+
+    try:
+        blocks = list(client.agents.blocks.list(agent_id=LETTA_AGENT_ID))
+        for block in blocks:
+            if block.label == label:
+                client.blocks.update(
+                    block_id=block.id,
+                    value=value
+                )
+                write_journal({
+                    "type": "memory_update",
+                    "label": label,
+                    "chars": len(value),
+                })
+                return {"content": [{"type": "text", "text": f"Updated memory block '{label}' ({len(value)} chars)"}]}
+        return {"content": [{"type": "text", "text": f"Memory block '{label}' not found"}]}
+    except Exception as e:
+        return {"content": [{"type": "text", "text": f"Error updating memory: {e}"}]}
+
+
+async def _memory_append(args):
+    """Append text to a Letta memory block."""
+    label = args.get("label", "")
+    text = args.get("text", "")
+
+    if not label or not text:
+        return {"content": [{"type": "text", "text": "Error: Both label and text required"}]}
+
+    if not LETTA_AGENT_ID:
+        return {"content": [{"type": "text", "text": "Error: LETTA_AGENT_ID not configured"}]}
+
+    client = get_letta_client()
+    if not client:
+        return {"content": [{"type": "text", "text": "Error: Could not connect to Letta"}]}
+
+    try:
+        blocks = list(client.agents.blocks.list(agent_id=LETTA_AGENT_ID))
+        for block in blocks:
+            if block.label == label:
+                new_value = block.value + "\n" + text
+                client.blocks.update(
+                    block_id=block.id,
+                    value=new_value
+                )
+                write_journal({
+                    "type": "memory_append",
+                    "label": label,
+                    "appended_chars": len(text),
+                    "total_chars": len(new_value),
+                })
+                return {"content": [{"type": "text",
+                                     "text": f"Appended {len(text)} chars to memory block '{label}' (now {len(new_value)} chars total)"}]}
+        return {"content": [{"type": "text", "text": f"Memory block '{label}' not found"}]}
+    except Exception as e:
+        return {"content": [{"type": "text", "text": f"Error appending to memory: {e}"}]}
+
+
+# =============================================================================
 # MCP Tool Wrappers (for Claude Agent SDK)
 # =============================================================================
 
@@ -422,6 +603,27 @@ async def git_push_tool(args):
     return await _git_push(args)
 
 
+# Letta Memory Tools
+@tool("memory_list", "List all available Letta memory blocks and their sizes.", {})
+async def memory_list_tool(args):
+    return await _memory_list(args)
+
+
+@tool("memory_read", "Read a specific Letta memory block by label.", {"label": str})
+async def memory_read_tool(args):
+    return await _memory_read(args)
+
+
+@tool("memory_update", "Replace the entire content of a Letta memory block.", {"label": str, "value": str})
+async def memory_update_tool(args):
+    return await _memory_update(args)
+
+
+@tool("memory_append", "Append text to a Letta memory block.", {"label": str, "text": str})
+async def memory_append_tool(args):
+    return await _memory_append(args)
+
+
 # Create MCP server with Discord tools (for Claude Agent SDK)
 discord_tools_server = create_sdk_mcp_server(
     name="discord",
@@ -429,7 +631,8 @@ discord_tools_server = create_sdk_mcp_server(
     tools=[
         send_message_tool, react_tool, send_image_tool,
         restart_self_tool, apply_update_tool,
-        git_add_tool, git_commit_tool, git_push_tool
+        git_add_tool, git_commit_tool, git_push_tool,
+        memory_list_tool, memory_read_tool, memory_update_tool, memory_append_tool,
     ],
 )
 
@@ -477,67 +680,6 @@ def image_to_base64(path: Path) -> Optional[str]:
     except Exception as e:
         debug_log(f"Base64 encoding error: {e}")
         return None
-
-
-# =============================================================================
-# Letta Memory & Journal
-# =============================================================================
-
-def get_letta_client():
-    """Get Letta client instance."""
-    try:
-        from letta_client import Letta
-        return Letta(base_url=LETTA_BASE_URL)
-    except ImportError:
-        debug_log("letta_client not installed")
-        return None
-    except Exception as e:
-        debug_log(f"Letta client error: {e}")
-        return None
-
-
-def get_letta_memory_blocks() -> dict[str, str]:
-    """Fetch memory blocks from Letta agent."""
-    if not LETTA_AGENT_ID:
-        debug_log("No LETTA_AGENT_ID configured")
-        return {}
-
-    client = get_letta_client()
-    if not client:
-        return {}
-
-    try:
-        blocks = client.agents.blocks.list(agent_id=LETTA_AGENT_ID)
-        memory = {block.label: block.value for block in blocks}
-        debug_log(f"Loaded {len(memory)} Letta memory blocks")
-        return memory
-    except Exception as e:
-        debug_log(f"Letta memory fetch error: {e}")
-        return {}
-
-
-def write_journal(entry: dict):
-    """Append an entry to the journal log."""
-    journal_path = LOGS_DIR / "journal.jsonl"
-    entry["t"] = datetime.now(timezone.utc).isoformat()
-
-    with open(journal_path, "a", encoding="utf-8") as f:
-        f.write(json.dumps(entry, ensure_ascii=False) + "\n")
-
-
-def read_recent_journal(n: int = 40) -> list[dict]:
-    """Read the most recent journal entries."""
-    journal_path = LOGS_DIR / "journal.jsonl"
-    if not journal_path.exists():
-        return []
-
-    try:
-        with open(journal_path, "r", encoding="utf-8") as f:
-            lines = f.readlines()[-n:]
-        return [json.loads(line) for line in lines if line.strip()]
-    except Exception as e:
-        debug_log(f"Journal read error: {e}")
-        return []
 
 
 # =============================================================================
@@ -593,6 +735,17 @@ You have git tools for self-modification:
 - git_add(files=["file1.py"]) - Stage files
 - git_commit(message="...") - Commit staged files
 - git_push() - Push to remote
+
+## Letta Memory Tools
+
+You can read and modify your persistent memory blocks stored in Letta:
+- memory_list() - List all available memory blocks and their sizes
+- memory_read(label="persona") - Read a specific memory block
+- memory_update(label="human", value="New content") - Replace entire block content
+- memory_append(label="project", text="New info to add") - Append to a block
+
+Available memory blocks typically include: persona, human, project, skills, loaded_skills
+Use these to persist important information across conversations!
 """
         base_prompt += discord_instructions
 
@@ -681,6 +834,12 @@ Git (for self-modification):
 - [TOOL: git_add(files="bot.py")] - Stage a file (use quotes, not brackets)
 - [TOOL: git_commit(message="Your commit message")] - Commit staged files
 - [TOOL: git_push()] - Push to remote
+
+Memory:
+- [TOOL: memory_list()] - List all memory blocks
+- [TOOL: memory_read(label="persona")] - Read a memory block
+- [TOOL: memory_update(label="human", value="new content")] - Replace a memory block
+- [TOOL: memory_append(label="project", text="new info")] - Append to a memory block
 
 ## IMPORTANT RULES
 
@@ -858,6 +1017,10 @@ async def invoke_claude_agent(
             "mcp__discord__git_add",
             "mcp__discord__git_commit",
             "mcp__discord__git_push",
+            "mcp__discord__memory_list",
+            "mcp__discord__memory_read",
+            "mcp__discord__memory_update",
+            "mcp__discord__memory_append",
         ])
         debug_log(f"Discord tools enabled")
 
@@ -1069,6 +1232,16 @@ async def invoke_gemini_agent(
                 await _git_commit(args)
             elif tool_name == "git_push":
                 await _git_push(args)
+            elif tool_name == "memory_list":
+                result = await _memory_list(args)
+                debug_log(f"memory_list result: {str(result)[:200]}")
+            elif tool_name == "memory_read":
+                result = await _memory_read(args)
+                debug_log(f"memory_read result: {str(result)[:200]}")
+            elif tool_name == "memory_update":
+                await _memory_update(args)
+            elif tool_name == "memory_append":
+                await _memory_append(args)
             else:
                 debug_log(f"Unknown tool: {tool_name}")
 
@@ -1169,6 +1342,7 @@ def setup_discord():
             mode_str = "Gemini" if GEMINI_MODE else "Claude"
             print(f"Discord: Logged in as {discord_client.user} (Mode: {mode_str})")
             print(f"📷 Image vision enabled!")
+            print(f"🧠 Letta memory tools enabled!")
 
             # Check for wake-up context
             wakeup_context = load_wakeup_context()
