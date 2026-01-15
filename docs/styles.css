@@ -152,6 +152,31 @@ body {
     color: var(--text-primary);
 }
 
+/* Sync Toggle */
+.sync-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    user-select: none;
+}
+
+.sync-toggle:hover {
+    color: var(--text-primary);
+}
+
+.sync-toggle input[type="checkbox"] {
+    cursor: pointer;
+}
+
+.diff-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
 /* Modal */
 .modal {
     position: fixed;
@@ -333,7 +358,10 @@ body {
     font-family: 'Georgia', serif;
     font-size: 1rem;
     line-height: 1.7;
-    padding: 0.125rem 0;
+    padding: 0.25rem 0;
+    margin: 0 -1rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
 }
 
 .diff-line.add {
@@ -341,7 +369,12 @@ body {
 }
 
 .diff-line.add .line-content {
+    color: var(--text-primary);
+}
+
+.diff-line.add .line-prefix {
     color: var(--add-color);
+    font-weight: bold;
 }
 
 .diff-line.remove {
@@ -349,7 +382,12 @@ body {
 }
 
 .diff-line.remove .line-content {
+    color: var(--text-primary);
+}
+
+.diff-line.remove .line-prefix {
     color: var(--remove-color);
+    font-weight: bold;
 }
 
 .diff-line.context .line-content {
@@ -369,6 +407,32 @@ body {
     padding: 0 1rem;
     white-space: pre-wrap;
     word-break: break-word;
+}
+
+/* Markdown rendering in diff view */
+.line-content strong {
+    font-weight: 600;
+}
+
+.line-content em {
+    font-style: italic;
+}
+
+.line-content code {
+    background: var(--bg-tertiary);
+    padding: 0.125rem 0.25rem;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+.line-content a {
+    color: var(--accent-color);
+    text-decoration: none;
+}
+
+.line-content a:hover {
+    text-decoration: underline;
 }
 
 /* Commits Panel */

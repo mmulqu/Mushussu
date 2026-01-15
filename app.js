@@ -18,7 +18,8 @@ const state = {
     originalContent: '',
     currentContent: '',
     fileSha: null,
-    hasChanges: false
+    hasChanges: false,
+    isMarkdown: false
 };
 
 // DOM Elements
@@ -43,6 +44,7 @@ const el = {
     wordCount: document.getElementById('word-count'),
     changeIndicator: document.getElementById('change-indicator'),
     diffView: document.getElementById('diff-view'),
+    syncScroll: document.getElementById('sync-scroll'),
 
     toggleCommits: document.getElementById('toggle-commits'),
     commitsPanel: document.getElementById('commits-panel'),
@@ -79,6 +81,7 @@ function setupEventListeners() {
 
     // Editor
     el.editor.addEventListener('input', handleEditorChange);
+    el.editor.addEventListener('scroll', handleEditorScroll);
 
     // Commits
     el.toggleCommits.addEventListener('click', () => {
@@ -86,6 +89,20 @@ function setupEventListeners() {
         loadCommits();
     });
     el.closeCommits.addEventListener('click', () => el.commitsPanel.style.display = 'none');
+}
+
+// Scroll sync
+let isScrolling = false;
+
+function handleEditorScroll() {
+    if (!el.syncScroll.checked || isScrolling) return;
+
+    isScrolling = true;
+    const scrollPercentage = el.editor.scrollTop / (el.editor.scrollHeight - el.editor.clientHeight);
+    const targetScroll = scrollPercentage * (el.diffView.scrollHeight - el.diffView.clientHeight);
+    el.diffView.scrollTop = targetScroll;
+
+    setTimeout(() => isScrolling = false, 50);
 }
 
 function loadConfig() {
@@ -224,6 +241,7 @@ async function handleFileSelect() {
         state.fileSha = data.sha;
         state.originalContent = atob(data.content);
         state.currentContent = state.originalContent;
+        state.isMarkdown = filePath.endsWith('.md');
 
         el.editor.value = state.originalContent;
         el.editor.placeholder = '';
@@ -415,7 +433,17 @@ function renderDiff(diff) {
 
         const content = document.createElement('span');
         content.className = 'line-content';
-        content.textContent = line.content || ' ';
+
+        // Render markdown for .md files
+        if (state.isMarkdown && typeof marked !== 'undefined' && line.content.trim()) {
+            try {
+                content.innerHTML = marked.parseInline(line.content);
+            } catch (e) {
+                content.textContent = line.content || ' ';
+            }
+        } else {
+            content.textContent = line.content || ' ';
+        }
 
         lineDiv.appendChild(prefix);
         lineDiv.appendChild(content);
