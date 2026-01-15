@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Novel Diff Viewer - LLM Edit History</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <h1>📚 Novel Diff Viewer</h1>
+            <p class="subtitle">Visualize LLM edits to your novel</p>
+        </header>
+
+        <div class="main-content">
+            <!-- Sidebar: File Browser -->
+            <aside class="sidebar">
+                <div class="sidebar-section">
+                    <h2>📁 Novel Files</h2>
+                    <div id="file-list" class="file-list">
+                        <div class="loading">Loading files...</div>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h2>🕐 Recent Commits</h2>
+                    <div class="commit-filter">
+                        <label>
+                            <input type="checkbox" id="filter-current-file" />
+                            Filter by selected file
+                        </label>
+                    </div>
+                    <div id="commit-list" class="commit-list">
+                        <div class="loading">Loading commits...</div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main View Area -->
+            <main class="main-view">
+                <div class="view-controls">
+                    <button id="btn-unified" class="btn btn-primary active">Unified Diff</button>
+                    <button id="btn-split" class="btn">Split View</button>
+                    <button id="btn-file" class="btn">File Content</button>
+                </div>
+
+                <div id="file-info" class="file-info">
+                    <span id="current-file">No file selected</span>
+                </div>
+
+                <div id="content-area" class="content-area">
+                    <div class="welcome">
+                        <h2>Welcome to Novel Diff Viewer</h2>
+                        <p>Select a file from the sidebar to view its content and history.</p>
+                        <p>Click on a commit to see the changes made in that commit.</p>
+                        <ul>
+                            <li><strong>Green lines</strong> = Added text</li>
+                            <li><strong>Red lines</strong> = Removed text</li>
+                            <li><strong>Gray lines</strong> = Context (unchanged)</li>
+                        </ul>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
