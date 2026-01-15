@@ -19,7 +19,8 @@ const state = {
     currentContent: '',
     fileSha: null,
     hasChanges: false,
-    isMarkdown: false
+    isMarkdown: false,
+    isViewingCommitDiff: false  // Track if viewing a commit diff vs live editing
 };
 
 // DOM Elements
@@ -95,7 +96,8 @@ function setupEventListeners() {
 let isScrolling = false;
 
 function handleEditorScroll() {
-    if (!el.syncScroll.checked || isScrolling) return;
+    // Disable scroll sync when viewing a commit diff (content doesn't match editor)
+    if (!el.syncScroll.checked || isScrolling || state.isViewingCommitDiff) return;
 
     isScrolling = true;
     const scrollPercentage = el.editor.scrollTop / (el.editor.scrollHeight - el.editor.clientHeight);
@@ -232,6 +234,9 @@ async function handleFileSelect() {
     const filePath = el.fileSelect.value;
     if (!filePath) return;
 
+    // Return to live editing mode (re-enable scroll sync)
+    state.isViewingCommitDiff = false;
+
     try {
         showStatus('Loading file...');
 
@@ -325,6 +330,9 @@ async function handleSave() {
 function handleEditorChange() {
     state.currentContent = el.editor.value;
     state.hasChanges = state.currentContent !== state.originalContent;
+
+    // Return to live editing mode when user makes changes (re-enable scroll sync)
+    state.isViewingCommitDiff = false;
 
     el.saveBtn.disabled = !state.hasChanges;
     el.changeIndicator.textContent = state.hasChanges ? '● Modified' : '';
@@ -499,6 +507,9 @@ async function viewCommitDiff(sha) {
     try {
         // Close commits panel so diff is fully visible and scrollable
         el.commitsPanel.style.display = 'none';
+
+        // Mark that we're viewing a commit diff (disables scroll sync)
+        state.isViewingCommitDiff = true;
 
         showStatus('Loading commit diff...');
 
