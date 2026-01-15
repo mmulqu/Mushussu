@@ -86,8 +86,12 @@ function setupEventListeners() {
     el.editor.addEventListener('input', handleEditorChange);
 
     // Text selection to jump to location in diff
+    // Desktop: double-click
     el.editor.addEventListener('dblclick', handleEditorDoubleClick);
-    el.diffView.addEventListener('click', handleDiffClick);
+
+    // Mobile: double-tap
+    setupDoubleTap(el.editor, handleEditorDoubleClick);
+    setupDoubleTap(el.diffView, handleDiffClick);
 
     // Commits
     el.toggleCommits.addEventListener('click', () => {
@@ -155,8 +159,34 @@ function handleResize() {
     }
 }
 
-// Jump to text location (double-click in editor, click in diff)
-function handleEditorDoubleClick() {
+// Setup double-tap detection for mobile
+function setupDoubleTap(element, callback) {
+    let lastTap = 0;
+    let tapTimeout;
+
+    element.addEventListener('touchend', (e) => {
+        const currentTime = new Date().getTime();
+        const tapLength = currentTime - lastTap;
+
+        clearTimeout(tapTimeout);
+
+        if (tapLength < 500 && tapLength > 0) {
+            // Double tap detected
+            callback(e);
+            e.preventDefault();
+        } else {
+            // Single tap - wait to see if another tap comes
+            tapTimeout = setTimeout(() => {
+                clearTimeout(tapTimeout);
+            }, 500);
+        }
+
+        lastTap = currentTime;
+    });
+}
+
+// Jump to text location (double-click in editor, double-tap on mobile)
+function handleEditorDoubleClick(e) {
     if (state.isViewingCommitDiff) return; // Only works in live editing mode
 
     const selection = window.getSelection();
