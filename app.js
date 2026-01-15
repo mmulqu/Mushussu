@@ -52,6 +52,9 @@ const el = {
     closeCommits: document.getElementById('close-commits'),
     commitsList: document.getElementById('commits-list'),
 
+    collapseDiff: document.getElementById('collapse-diff'),
+    expandDiff: document.getElementById('expand-diff'),
+
     statusMessage: document.getElementById('status-message'),
     fileInfo: document.getElementById('file-info')
 };
@@ -84,15 +87,35 @@ function setupEventListeners() {
     el.editor.addEventListener('input', handleEditorChange);
     el.editor.addEventListener('scroll', handleEditorScroll);
 
+    // Diff view scroll (for bidirectional sync)
+    el.diffView.addEventListener('scroll', handleDiffScroll);
+
     // Commits
     el.toggleCommits.addEventListener('click', () => {
         el.commitsPanel.style.display = 'flex';
         loadCommits();
     });
     el.closeCommits.addEventListener('click', () => el.commitsPanel.style.display = 'none');
+
+    // Collapse/expand diff pane
+    el.collapseDiff.addEventListener('click', () => {
+        const diffPane = document.querySelector('.diff-pane');
+        const mainContent = document.querySelector('.main-content');
+        diffPane.style.display = 'none';
+        mainContent.style.gridTemplateColumns = '1fr';
+        el.expandDiff.style.display = 'inline-block';
+    });
+
+    el.expandDiff.addEventListener('click', () => {
+        const diffPane = document.querySelector('.diff-pane');
+        const mainContent = document.querySelector('.main-content');
+        diffPane.style.display = 'flex';
+        mainContent.style.gridTemplateColumns = '1fr 1fr';
+        el.expandDiff.style.display = 'none';
+    });
 }
 
-// Scroll sync
+// Scroll sync (bidirectional)
 let isScrolling = false;
 
 function handleEditorScroll() {
@@ -100,9 +123,29 @@ function handleEditorScroll() {
     if (!el.syncScroll.checked || isScrolling || state.isViewingCommitDiff) return;
 
     isScrolling = true;
-    const scrollPercentage = el.editor.scrollTop / (el.editor.scrollHeight - el.editor.clientHeight);
-    const targetScroll = scrollPercentage * (el.diffView.scrollHeight - el.diffView.clientHeight);
-    el.diffView.scrollTop = targetScroll;
+    const editorHeight = el.editor.scrollHeight - el.editor.clientHeight;
+    const diffHeight = el.diffView.scrollHeight - el.diffView.clientHeight;
+
+    if (editorHeight > 0 && diffHeight > 0) {
+        const scrollPercentage = el.editor.scrollTop / editorHeight;
+        el.diffView.scrollTop = scrollPercentage * diffHeight;
+    }
+
+    setTimeout(() => isScrolling = false, 50);
+}
+
+function handleDiffScroll() {
+    // Disable scroll sync when viewing a commit diff (content doesn't match editor)
+    if (!el.syncScroll.checked || isScrolling || state.isViewingCommitDiff) return;
+
+    isScrolling = true;
+    const editorHeight = el.editor.scrollHeight - el.editor.clientHeight;
+    const diffHeight = el.diffView.scrollHeight - el.diffView.clientHeight;
+
+    if (editorHeight > 0 && diffHeight > 0) {
+        const scrollPercentage = el.diffView.scrollTop / diffHeight;
+        el.editor.scrollTop = scrollPercentage * editorHeight;
+    }
 
     setTimeout(() => isScrolling = false, 50);
 }
