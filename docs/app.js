@@ -1,93 +1,106 @@
-// Novel Diff Viewer - GitHub API Edition
-// Pure client-side app for visualizing git diffs
+// Novel Editor - Simplified GitHub Editor with Diff View
 
 const GITHUB_API = 'https://api.github.com';
-const CACHE_KEY = 'novel-diff-viewer-config';
+const CONFIG_KEY = 'novel-editor-config';
 
-// Application state
+// State
 const state = {
     owner: null,
     repo: null,
-    basePath: '',
+    branch: 'main',
+    path: '',
     token: null,
+    authorName: 'Novel Author',
+    authorEmail: 'author@example.com',
+
     files: [],
-    commits: [],
-    selectedFile: null,
-    selectedCommit: null,
-    viewMode: 'unified',
-    filterByFile: false
+    currentFile: null,
+    originalContent: '',
+    currentContent: '',
+    fileSha: null,
+    hasChanges: false
 };
 
 // DOM Elements
-const elements = {
-    // Setup
-    repoSetup: document.getElementById('repo-setup'),
-    mainContent: document.getElementById('main-content'),
-    repoUrlInput: document.getElementById('repo-url'),
-    basePathInput: document.getElementById('base-path'),
-    tokenInput: document.getElementById('github-token'),
-    connectBtn: document.getElementById('connect-btn'),
-    setupError: document.getElementById('setup-error'),
-    changeRepoBtn: document.getElementById('change-repo-btn'),
+const el = {
+    settingsModal: document.getElementById('settings-modal'),
+    settingsBtn: document.getElementById('settings-btn'),
+    closeSettings: document.getElementById('close-settings'),
+    saveSettings: document.getElementById('save-settings'),
 
-    // Main UI
-    currentRepoSpan: document.getElementById('current-repo'),
-    fileList: document.getElementById('file-list'),
-    commitList: document.getElementById('commit-list'),
-    contentArea: document.getElementById('content-area'),
-    currentFile: document.getElementById('current-file'),
-    filterCheckbox: document.getElementById('filter-current-file'),
-    btnUnified: document.getElementById('btn-unified'),
-    btnFile: document.getElementById('btn-file')
+    repoInput: document.getElementById('repo-input'),
+    branchInput: document.getElementById('branch-input'),
+    pathInput: document.getElementById('path-input'),
+    tokenInput: document.getElementById('token-input'),
+    authorName: document.getElementById('author-name'),
+    authorEmail: document.getElementById('author-email'),
+
+    fileSelect: document.getElementById('file-select'),
+    refreshBtn: document.getElementById('refresh-btn'),
+    saveBtn: document.getElementById('save-btn'),
+
+    editor: document.getElementById('editor'),
+    wordCount: document.getElementById('word-count'),
+    changeIndicator: document.getElementById('change-indicator'),
+    diffView: document.getElementById('diff-view'),
+
+    toggleCommits: document.getElementById('toggle-commits'),
+    commitsPanel: document.getElementById('commits-panel'),
+    closeCommits: document.getElementById('close-commits'),
+    commitsList: document.getElementById('commits-list'),
+
+    statusMessage: document.getElementById('status-message'),
+    fileInfo: document.getElementById('file-info')
 };
 
-// Initialize application
+// Initialize
 async function init() {
     setupEventListeners();
     loadConfig();
+
+    // Show settings if not configured
+    if (!state.owner || !state.repo) {
+        el.settingsModal.style.display = 'flex';
+    } else {
+        await loadFiles();
+    }
 }
 
 function setupEventListeners() {
-    elements.connectBtn.addEventListener('click', handleConnect);
-    elements.changeRepoBtn.addEventListener('click', showSetup);
+    // Settings
+    el.settingsBtn.addEventListener('click', () => el.settingsModal.style.display = 'flex');
+    el.closeSettings.addEventListener('click', () => el.settingsModal.style.display = 'none');
+    el.saveSettings.addEventListener('click', handleSaveSettings);
 
-    elements.filterCheckbox.addEventListener('change', (e) => {
-        state.filterByFile = e.target.checked;
+    // File operations
+    el.fileSelect.addEventListener('change', handleFileSelect);
+    el.refreshBtn.addEventListener('click', handleRefresh);
+    el.saveBtn.addEventListener('click', handleSave);
+
+    // Editor
+    el.editor.addEventListener('input', handleEditorChange);
+
+    // Commits
+    el.toggleCommits.addEventListener('click', () => {
+        el.commitsPanel.style.display = 'flex';
         loadCommits();
     });
-
-    elements.btnUnified.addEventListener('click', () => {
-        setViewMode('unified');
-        if (state.selectedCommit) {
-            loadCommitDiff(state.selectedCommit);
-        }
-    });
-
-    elements.btnFile.addEventListener('click', () => {
-        setViewMode('file');
-        if (state.selectedFile) {
-            loadFileContent(state.selectedFile);
-        }
-    });
-
-    // Allow Enter key to connect
-    [elements.repoUrlInput, elements.basePathInput, elements.tokenInput].forEach(input => {
-        input.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') handleConnect();
-        });
-    });
+    el.closeCommits.addEventListener('click', () => el.commitsPanel.style.display = 'none');
 }
 
 function loadConfig() {
     try {
-        const saved = localStorage.getItem(CACHE_KEY);
+        const saved = localStorage.getItem(CONFIG_KEY);
         if (saved) {
             const config = JSON.parse(saved);
-            if (config.owner && config.repo) {
-                elements.repoUrlInput.value = `${config.owner}/${config.repo}`;
-                elements.basePathInput.value = config.basePath || '';
-                elements.tokenInput.value = config.token || '';
-            }
+            Object.assign(state, config);
+
+            el.repoInput.value = `${state.owner}/${state.repo}`;
+            el.branchInput.value = state.branch;
+            el.pathInput.value = state.path;
+            el.tokenInput.value = state.token || '';
+            el.authorName.value = state.authorName;
+            el.authorEmail.value = state.authorEmail;
         }
     } catch (error) {
         console.error('Error loading config:', error);
@@ -96,39 +109,47 @@ function loadConfig() {
 
 function saveConfig() {
     try {
-        const config = {
+        localStorage.setItem(CONFIG_KEY, JSON.stringify({
             owner: state.owner,
             repo: state.repo,
-            basePath: state.basePath,
-            token: state.token
-        };
-        localStorage.setItem(CACHE_KEY, JSON.stringify(config));
+            branch: state.branch,
+            path: state.path,
+            token: state.token,
+            authorName: state.authorName,
+            authorEmail: state.authorEmail
+        }));
     } catch (error) {
         console.error('Error saving config:', error);
     }
 }
 
-function showSetup() {
-    elements.repoSetup.style.display = 'flex';
-    elements.mainContent.style.display = 'none';
+async function handleSaveSettings() {
+    try {
+        const repoUrl = el.repoInput.value.trim();
+        const match = repoUrl.match(/(?:github\.com\/)?([^\/]+)\/([^\/]+)/);
+
+        if (!match) {
+            throw new Error('Invalid repository format. Use: owner/repo');
+        }
+
+        state.owner = match[1];
+        state.repo = match[2].replace(/\.git$/, '');
+        state.branch = el.branchInput.value.trim() || 'main';
+        state.path = el.pathInput.value.trim();
+        state.token = el.tokenInput.value.trim();
+        state.authorName = el.authorName.value.trim();
+        state.authorEmail = el.authorEmail.value.trim();
+
+        saveConfig();
+        el.settingsModal.style.display = 'none';
+
+        await loadFiles();
+    } catch (error) {
+        showStatus(`Error: ${error.message}`, 'error');
+    }
 }
 
-function showMain() {
-    elements.repoSetup.style.display = 'none';
-    elements.mainContent.style.display = 'flex';
-    elements.currentRepoSpan.textContent = `${state.owner}/${state.repo}`;
-}
-
-function showError(message) {
-    elements.setupError.textContent = message;
-    elements.setupError.style.display = 'block';
-}
-
-function hideError() {
-    elements.setupError.style.display = 'none';
-}
-
-// GitHub API Functions
+// GitHub API
 async function githubApi(endpoint, options = {}) {
     const headers = {
         'Accept': 'application/vnd.github.v3+json',
@@ -145,170 +166,311 @@ async function githubApi(endpoint, options = {}) {
     });
 
     if (!response.ok) {
-        const error = await response.json();
+        const error = await response.json().catch(() => ({}));
         throw new Error(error.message || `GitHub API error: ${response.status}`);
     }
 
     return response.json();
 }
 
-function parseRepoUrl(url) {
-    // Handle formats:
-    // - username/repo
-    // - https://github.com/username/repo
-    // - https://github.com/username/repo.git
-
-    url = url.trim();
-
-    // Remove .git suffix
-    url = url.replace(/\.git$/, '');
-
-    // Extract owner/repo
-    const match = url.match(/(?:github\.com\/)?([^\/]+)\/([^\/]+)/);
-
-    if (!match) {
-        throw new Error('Invalid repository URL format');
-    }
-
-    return {
-        owner: match[1],
-        repo: match[2]
-    };
-}
-
-async function handleConnect() {
-    hideError();
-    elements.connectBtn.disabled = true;
-    elements.connectBtn.textContent = 'Connecting...';
-
-    try {
-        const repoUrl = elements.repoUrlInput.value;
-        const { owner, repo } = parseRepoUrl(repoUrl);
-
-        state.owner = owner;
-        state.repo = repo;
-        state.basePath = elements.basePathInput.value.trim();
-        state.token = elements.tokenInput.value.trim();
-
-        // Verify repository access
-        await githubApi(`/repos/${owner}/${repo}`);
-
-        // Save config
-        saveConfig();
-
-        // Show main interface
-        showMain();
-
-        // Load data
-        await Promise.all([
-            loadFiles(),
-            loadCommits()
-        ]);
-
-    } catch (error) {
-        showError(error.message);
-    } finally {
-        elements.connectBtn.disabled = false;
-        elements.connectBtn.textContent = 'Connect Repository';
-    }
-}
-
 async function loadFiles() {
     try {
-        elements.fileList.innerHTML = '<div class="loading">Loading files...</div>';
+        showStatus('Loading files...');
 
-        // Get repository tree
-        const path = state.basePath ? `?recursive=1` : '?recursive=1';
-        const data = await githubApi(`/repos/${state.owner}/${state.repo}/git/trees/HEAD${path}`);
+        const data = await githubApi(`/repos/${state.owner}/${state.repo}/git/trees/${state.branch}?recursive=1`);
 
-        // Filter for text/markdown files in the base path
-        const files = data.tree
+        state.files = data.tree
             .filter(item => {
                 if (item.type !== 'blob') return false;
-
                 const isTextFile = /\.(txt|md)$/i.test(item.path);
-
-                if (state.basePath) {
-                    return isTextFile && item.path.startsWith(state.basePath);
+                if (state.path) {
+                    return isTextFile && item.path.startsWith(state.path);
                 }
-
                 return isTextFile;
             })
             .map(item => ({
                 name: item.path.split('/').pop(),
                 path: item.path,
-                sha: item.sha,
-                size: item.size || 0
+                sha: item.sha
             }))
             .sort((a, b) => a.name.localeCompare(b.name));
 
-        state.files = files;
-        renderFiles();
+        // Populate file select
+        el.fileSelect.innerHTML = '<option value="">Select a file...</option>';
+        state.files.forEach(file => {
+            const option = document.createElement('option');
+            option.value = file.path;
+            option.textContent = file.name;
+            el.fileSelect.appendChild(option);
+        });
+
+        showStatus(`Loaded ${state.files.length} files`);
 
     } catch (error) {
-        elements.fileList.innerHTML = `<div class="error-message">Error loading files: ${error.message}</div>`;
+        showStatus(`Error loading files: ${error.message}`, 'error');
     }
+}
+
+async function handleFileSelect() {
+    const filePath = el.fileSelect.value;
+    if (!filePath) return;
+
+    try {
+        showStatus('Loading file...');
+
+        const data = await githubApi(`/repos/${state.owner}/${state.repo}/contents/${filePath}?ref=${state.branch}`);
+
+        state.currentFile = filePath;
+        state.fileSha = data.sha;
+        state.originalContent = atob(data.content);
+        state.currentContent = state.originalContent;
+
+        el.editor.value = state.originalContent;
+        el.editor.placeholder = '';
+
+        updateWordCount();
+        updateDiff();
+
+        el.fileInfo.textContent = filePath;
+        showStatus('File loaded');
+
+    } catch (error) {
+        showStatus(`Error loading file: ${error.message}`, 'error');
+    }
+}
+
+async function handleRefresh() {
+    if (!state.currentFile) return;
+
+    const currentFile = state.currentFile;
+    el.fileSelect.value = '';
+    await loadFiles();
+
+    // Reselect current file
+    el.fileSelect.value = currentFile;
+    await handleFileSelect();
+}
+
+async function handleSave() {
+    if (!state.currentFile || !state.hasChanges) return;
+    if (!state.token) {
+        showStatus('GitHub token required for push. Check settings.', 'error');
+        return;
+    }
+
+    const message = prompt('Commit message:', 'Update ' + state.currentFile.split('/').pop());
+    if (!message) return;
+
+    try {
+        el.saveBtn.disabled = true;
+        showStatus('Committing...');
+
+        // Update file content
+        await githubApi(`/repos/${state.owner}/${state.repo}/contents/${state.currentFile}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                message: message,
+                content: btoa(unescape(encodeURIComponent(state.currentContent))),
+                sha: state.fileSha,
+                branch: state.branch,
+                committer: {
+                    name: state.authorName,
+                    email: state.authorEmail
+                },
+                author: {
+                    name: state.authorName,
+                    email: state.authorEmail
+                }
+            })
+        });
+
+        // Update state
+        state.originalContent = state.currentContent;
+        state.hasChanges = false;
+        updateDiff();
+
+        showStatus('✓ Committed and pushed!', 'success');
+
+        // Refresh to get new SHA
+        setTimeout(() => handleRefresh(), 1000);
+
+    } catch (error) {
+        showStatus(`Error saving: ${error.message}`, 'error');
+    } finally {
+        el.saveBtn.disabled = false;
+    }
+}
+
+function handleEditorChange() {
+    state.currentContent = el.editor.value;
+    state.hasChanges = state.currentContent !== state.originalContent;
+
+    el.saveBtn.disabled = !state.hasChanges;
+    el.changeIndicator.textContent = state.hasChanges ? '● Modified' : '';
+
+    updateWordCount();
+    updateDiff();
+}
+
+function updateWordCount() {
+    const words = el.editor.value.trim().split(/\s+/).filter(w => w.length > 0).length;
+    el.wordCount.textContent = `${words} word${words !== 1 ? 's' : ''}`;
+}
+
+function updateDiff() {
+    if (!state.currentFile) {
+        el.diffView.innerHTML = '<div class="empty-state"><p>No file selected</p></div>';
+        return;
+    }
+
+    if (!state.hasChanges) {
+        el.diffView.innerHTML = '<div class="empty-state"><p>No changes</p><small>Edit the text to see differences</small></div>';
+        return;
+    }
+
+    const diff = computeDiff(state.originalContent, state.currentContent);
+    renderDiff(diff);
+}
+
+function computeDiff(oldText, newText) {
+    const oldLines = oldText.split('\n');
+    const newLines = newText.split('\n');
+
+    // Simple line-by-line diff using LCS approach
+    const diff = [];
+    let i = 0, j = 0;
+
+    while (i < oldLines.length || j < newLines.length) {
+        if (i >= oldLines.length) {
+            // Remaining new lines
+            diff.push({ type: 'add', content: newLines[j] });
+            j++;
+        } else if (j >= newLines.length) {
+            // Remaining old lines
+            diff.push({ type: 'remove', content: oldLines[i] });
+            i++;
+        } else if (oldLines[i] === newLines[j]) {
+            // Same line
+            diff.push({ type: 'context', content: oldLines[i] });
+            i++;
+            j++;
+        } else {
+            // Different lines - check if it's a replacement or add/remove
+            const nextOldMatch = newLines.indexOf(oldLines[i], j);
+            const nextNewMatch = oldLines.indexOf(newLines[j], i);
+
+            if (nextNewMatch !== -1 && (nextOldMatch === -1 || nextNewMatch < nextOldMatch)) {
+                // Line was removed
+                diff.push({ type: 'remove', content: oldLines[i] });
+                i++;
+            } else {
+                // Line was added
+                diff.push({ type: 'add', content: newLines[j] });
+                j++;
+            }
+        }
+    }
+
+    return diff;
+}
+
+function renderDiff(diff) {
+    el.diffView.innerHTML = '';
+
+    let contextCount = 0;
+    const maxContext = 3;
+
+    diff.forEach((line, index) => {
+        // Skip excessive context
+        if (line.type === 'context') {
+            contextCount++;
+
+            // Show only first/last few context lines around changes
+            const hasChangeBefore = index > 0 && diff[index - 1].type !== 'context';
+            const hasChangeAfter = index < diff.length - 1 && diff[index + 1].type !== 'context';
+
+            if (!hasChangeBefore && !hasChangeAfter && contextCount > maxContext) {
+                // Skip this context line if we're far from changes
+                if (contextCount === maxContext + 1) {
+                    const skipLine = document.createElement('div');
+                    skipLine.className = 'diff-line context';
+                    skipLine.innerHTML = '<span class="line-prefix">⋮</span><span class="line-content">...</span>';
+                    el.diffView.appendChild(skipLine);
+                }
+                return;
+            }
+        } else {
+            contextCount = 0;
+        }
+
+        const lineDiv = document.createElement('div');
+        lineDiv.className = `diff-line ${line.type}`;
+
+        const prefix = document.createElement('span');
+        prefix.className = 'line-prefix';
+        prefix.textContent = line.type === 'add' ? '+' : line.type === 'remove' ? '-' : ' ';
+
+        const content = document.createElement('span');
+        content.className = 'line-content';
+        content.textContent = line.content || ' ';
+
+        lineDiv.appendChild(prefix);
+        lineDiv.appendChild(content);
+        el.diffView.appendChild(lineDiv);
+    });
 }
 
 async function loadCommits() {
     try {
-        elements.commitList.innerHTML = '<div class="loading">Loading commits...</div>';
+        el.commitsList.innerHTML = '<div class="loading">Loading commits...</div>';
 
-        let endpoint = `/repos/${state.owner}/${state.repo}/commits?per_page=50`;
-
-        if (state.filterByFile && state.selectedFile) {
-            endpoint += `&path=${state.selectedFile}`;
-        } else if (state.basePath) {
-            endpoint += `&path=${state.basePath}`;
+        let endpoint = `/repos/${state.owner}/${state.repo}/commits?per_page=20&sha=${state.branch}`;
+        if (state.currentFile) {
+            endpoint += `&path=${state.currentFile}`;
         }
 
         const commits = await githubApi(endpoint);
 
-        state.commits = commits.map(commit => ({
-            sha: commit.sha,
-            short_sha: commit.sha.substring(0, 7),
-            message: commit.commit.message,
-            author: commit.commit.author.name,
-            email: commit.commit.author.email,
-            date: commit.commit.author.date,
-            timestamp: new Date(commit.commit.author.date).getTime()
-        }));
+        el.commitsList.innerHTML = '';
 
-        renderCommits();
+        commits.forEach(commit => {
+            const item = document.createElement('div');
+            item.className = 'commit-item';
 
-    } catch (error) {
-        elements.commitList.innerHTML = `<div class="error-message">Error loading commits: ${error.message}</div>`;
-    }
-}
+            const hash = document.createElement('div');
+            hash.className = 'commit-hash';
+            hash.textContent = commit.sha.substring(0, 7);
 
-async function loadFileContent(filepath) {
-    try {
-        elements.contentArea.innerHTML = '<div class="loading">Loading file...</div>';
+            const message = document.createElement('div');
+            message.className = 'commit-message';
+            message.textContent = commit.commit.message.split('\n')[0];
 
-        const data = await githubApi(`/repos/${state.owner}/${state.repo}/contents/${filepath}`);
+            const meta = document.createElement('div');
+            meta.className = 'commit-meta';
+            const date = new Date(commit.commit.author.date);
+            meta.textContent = `${commit.commit.author.name} • ${formatDate(date)}`;
 
-        // Decode base64 content
-        const content = atob(data.content);
+            item.appendChild(hash);
+            item.appendChild(message);
+            item.appendChild(meta);
 
-        renderFileContent(content);
+            item.addEventListener('click', () => viewCommitDiff(commit.sha));
 
-    } catch (error) {
-        elements.contentArea.innerHTML = `<div class="error-message">Error loading file: ${error.message}</div>`;
-    }
-}
-
-async function loadCommitDiff(sha) {
-    try {
-        elements.contentArea.innerHTML = '<div class="loading">Loading diff...</div>';
-
-        // Get commit details with diff
-        const commit = await githubApi(`/repos/${state.owner}/${state.repo}/commits/${sha}`, {
-            headers: {
-                'Accept': 'application/vnd.github.v3.diff'
-            }
+            el.commitsList.appendChild(item);
         });
 
-        // Note: When Accept header is set to diff, response is text
+    } catch (error) {
+        el.commitsList.innerHTML = `<div class="loading">Error loading commits: ${error.message}</div>`;
+    }
+}
+
+async function viewCommitDiff(sha) {
+    try {
+        showStatus('Loading commit diff...');
+
         const response = await fetch(`${GITHUB_API}/repos/${state.owner}/${state.repo}/commits/${sha}`, {
             headers: {
                 'Accept': 'application/vnd.github.v3.diff',
@@ -318,282 +480,34 @@ async function loadCommitDiff(sha) {
 
         const diffText = await response.text();
 
-        // Get commit info separately
-        const commitInfo = await githubApi(`/repos/${state.owner}/${state.repo}/commits/${sha}`);
+        // Simple display of diff
+        el.diffView.innerHTML = '<pre style="white-space: pre-wrap; padding: 1rem; font-size: 0.9rem; line-height: 1.5;">' +
+            escapeHtml(diffText) + '</pre>';
 
-        renderDiff({
-            commit: {
-                sha: commitInfo.sha,
-                author: commitInfo.commit.author.name,
-                message: commitInfo.commit.message,
-                date: commitInfo.commit.author.date
-            },
-            diff: diffText
-        });
+        showStatus('Showing commit ' + sha.substring(0, 7));
 
     } catch (error) {
-        elements.contentArea.innerHTML = `<div class="error-message">Error loading diff: ${error.message}</div>`;
+        showStatus(`Error loading commit: ${error.message}`, 'error');
     }
 }
 
-// Render Functions
-function renderFiles() {
-    if (state.files.length === 0) {
-        elements.fileList.innerHTML = '<div class="loading">No text files found</div>';
-        return;
-    }
-
-    elements.fileList.innerHTML = '';
-
-    state.files.forEach(file => {
-        const fileItem = document.createElement('div');
-        fileItem.className = 'file-item';
-        if (state.selectedFile === file.path) {
-            fileItem.classList.add('active');
-        }
-
-        const fileName = document.createElement('div');
-        fileName.className = 'file-name';
-        fileName.textContent = file.name;
-
-        const fileMeta = document.createElement('div');
-        fileMeta.className = 'file-meta';
-        fileMeta.textContent = formatFileSize(file.size);
-
-        fileItem.appendChild(fileName);
-        fileItem.appendChild(fileMeta);
-
-        fileItem.addEventListener('click', () => selectFile(file));
-
-        elements.fileList.appendChild(fileItem);
-    });
+function showStatus(message, type = '') {
+    el.statusMessage.textContent = message;
+    el.statusMessage.parentElement.className = `status-bar ${type}`;
 }
 
-function renderCommits() {
-    if (state.commits.length === 0) {
-        elements.commitList.innerHTML = '<div class="loading">No commits found</div>';
-        return;
-    }
-
-    elements.commitList.innerHTML = '';
-
-    state.commits.forEach(commit => {
-        const commitItem = document.createElement('div');
-        commitItem.className = 'commit-item';
-        if (state.selectedCommit === commit.sha) {
-            commitItem.classList.add('active');
-        }
-
-        const hash = document.createElement('div');
-        hash.className = 'commit-hash';
-        hash.textContent = commit.short_sha;
-
-        const message = document.createElement('div');
-        message.className = 'commit-message';
-        message.textContent = truncate(commit.message.split('\n')[0], 80);
-
-        const meta = document.createElement('div');
-        meta.className = 'commit-meta';
-        meta.textContent = `${commit.author} • ${formatDate(commit.date)}`;
-
-        commitItem.appendChild(hash);
-        commitItem.appendChild(message);
-        commitItem.appendChild(meta);
-
-        commitItem.addEventListener('click', () => selectCommit(commit));
-
-        elements.commitList.appendChild(commitItem);
-    });
-}
-
-function renderFileContent(content) {
-    const container = document.createElement('div');
-    container.className = 'file-content';
-    container.textContent = content;
-    elements.contentArea.innerHTML = '';
-    elements.contentArea.appendChild(container);
-}
-
-function renderDiff(diffData) {
-    const container = document.createElement('div');
-    container.className = 'diff-container';
-
-    // Parse the unified diff into files
-    const files = parseUnifiedDiff(diffData.diff);
-
-    // Filter for text/md files in basePath
-    const filteredFiles = files.filter(file => {
-        const isTextFile = /\.(txt|md)$/i.test(file.path);
-        if (state.basePath) {
-            return isTextFile && file.path.startsWith(state.basePath);
-        }
-        return isTextFile;
-    });
-
-    if (filteredFiles.length === 0) {
-        container.innerHTML = '<div class="loading">No changes to text files in this commit</div>';
-    } else {
-        filteredFiles.forEach(file => {
-            const fileDiv = document.createElement('div');
-            fileDiv.className = 'diff-file';
-
-            const header = document.createElement('div');
-            header.className = 'diff-header';
-            header.textContent = `📄 ${file.path}`;
-
-            const body = document.createElement('div');
-            body.className = 'diff-body';
-
-            file.lines.forEach(line => {
-                const lineDiv = document.createElement('div');
-                lineDiv.className = `diff-line ${line.type}`;
-
-                const lineNumber = document.createElement('span');
-                lineNumber.className = 'line-number';
-                lineNumber.textContent = line.lineNum || '';
-
-                const lineContent = document.createElement('span');
-                lineContent.className = 'line-content';
-                lineContent.textContent = line.content;
-
-                lineDiv.appendChild(lineNumber);
-                lineDiv.appendChild(lineContent);
-                body.appendChild(lineDiv);
-            });
-
-            fileDiv.appendChild(header);
-            fileDiv.appendChild(body);
-            container.appendChild(fileDiv);
-        });
-    }
-
-    elements.contentArea.innerHTML = '';
-    elements.contentArea.appendChild(container);
-}
-
-// Diff Parser
-function parseUnifiedDiff(diffText) {
-    const files = [];
-    const lines = diffText.split('\n');
-    let currentFile = null;
-    let oldLineNum = 0;
-    let newLineNum = 0;
-
-    for (let i = 0; i < lines.length; i++) {
-        const line = lines[i];
-
-        if (line.startsWith('diff --git')) {
-            // New file
-            if (currentFile) {
-                files.push(currentFile);
-            }
-
-            const match = line.match(/diff --git a\/(.*?) b\/(.*?)$/);
-            currentFile = {
-                path: match ? match[2] : 'unknown',
-                lines: []
-            };
-            oldLineNum = 0;
-            newLineNum = 0;
-        } else if (currentFile && line.startsWith('@@')) {
-            // Hunk header
-            const match = line.match(/@@ -(\d+),?\d* \+(\d+),?\d* @@/);
-            if (match) {
-                oldLineNum = parseInt(match[1]);
-                newLineNum = parseInt(match[2]);
-            }
-            currentFile.lines.push({
-                type: 'hunk-header',
-                content: line,
-                lineNum: ''
-            });
-        } else if (currentFile && line.startsWith('+') && !line.startsWith('+++')) {
-            // Added line
-            currentFile.lines.push({
-                type: 'add',
-                content: line.substring(1),
-                lineNum: newLineNum
-            });
-            newLineNum++;
-        } else if (currentFile && line.startsWith('-') && !line.startsWith('---')) {
-            // Removed line
-            currentFile.lines.push({
-                type: 'remove',
-                content: line.substring(1),
-                lineNum: oldLineNum
-            });
-            oldLineNum++;
-        } else if (currentFile && line.startsWith(' ')) {
-            // Context line
-            currentFile.lines.push({
-                type: 'context',
-                content: line.substring(1),
-                lineNum: newLineNum
-            });
-            oldLineNum++;
-            newLineNum++;
-        }
-    }
-
-    if (currentFile) {
-        files.push(currentFile);
-    }
-
-    return files;
-}
-
-// Selection Handlers
-function selectFile(file) {
-    state.selectedFile = file.path;
-    elements.currentFile.textContent = file.path;
-
-    renderFiles();
-
-    if (state.viewMode === 'file') {
-        loadFileContent(file.path);
-    }
-
-    if (state.filterByFile) {
-        loadCommits();
-    }
-}
-
-function selectCommit(commit) {
-    state.selectedCommit = commit.sha;
-    renderCommits();
-
-    if (state.viewMode === 'unified') {
-        loadCommitDiff(commit.sha);
-    }
-}
-
-function setViewMode(mode) {
-    state.viewMode = mode;
-    elements.btnUnified.classList.toggle('active', mode === 'unified');
-    elements.btnFile.classList.toggle('active', mode === 'file');
-}
-
-// Utility Functions
-function formatFileSize(bytes) {
-    if (bytes < 1024) return bytes + ' B';
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
-}
-
-function formatDate(isoString) {
-    const date = new Date(isoString);
+function formatDate(date) {
     const now = new Date();
     const diff = now - date;
 
+    if (diff < 3600000) {
+        const minutes = Math.floor(diff / 60000);
+        return `${minutes}m ago`;
+    }
     if (diff < 86400000) {
         const hours = Math.floor(diff / 3600000);
-        if (hours === 0) {
-            const minutes = Math.floor(diff / 60000);
-            return `${minutes}m ago`;
-        }
         return `${hours}h ago`;
     }
-
     if (diff < 604800000) {
         const days = Math.floor(diff / 86400000);
         return `${days}d ago`;
@@ -606,10 +520,11 @@ function formatDate(isoString) {
     });
 }
 
-function truncate(str, maxLength) {
-    if (str.length <= maxLength) return str;
-    return str.substring(0, maxLength) + '...';
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 
-// Start the application
+// Start the app
 init();

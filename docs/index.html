@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Novel Diff Viewer - GitHub Edition</title>
+    <title>Novel Editor - Write & See Diffs</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -11,126 +11,116 @@
         <!-- Header -->
         <header class="header">
             <div class="header-content">
-                <h1>📖 Novel Diff Viewer</h1>
-                <p class="subtitle">Visualize LLM edits to your novel manuscripts</p>
+                <h1>📝 Novel Editor</h1>
+                <div class="header-controls">
+                    <select id="file-select" class="file-select">
+                        <option value="">Select a file...</option>
+                    </select>
+                    <button id="refresh-btn" class="btn-secondary" title="Refresh from GitHub">
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
+                            <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+                        </svg>
+                        Refresh
+                    </button>
+                    <button id="save-btn" class="btn-primary" disabled>
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M13.5 1a1.5 1.5 0 0 1 1.5 1.5v11.75a.75.75 0 0 1-1.5 0V2.5a.25.25 0 0 0-.25-.25H2.75a.25.25 0 0 0-.25.25v11.5c0 .138.112.25.25.25h9.5a.25.25 0 0 0 .25-.25V9h1.5v5.25a1.75 1.75 0 0 1-1.75 1.75H2.75A1.75 1.75 0 0 1 1 14.25V2.5A1.5 1.5 0 0 1 2.5 1h11z"/>
+                            <path d="M4.75 7.25a.75.75 0 0 0 0 1.5h4.5a.75.75 0 0 0 0-1.5h-4.5zm0 3a.75.75 0 0 0 0 1.5h2.5a.75.75 0 0 0 0-1.5h-2.5z"/>
+                        </svg>
+                        Commit & Push
+                    </button>
+                    <button id="settings-btn" class="btn-secondary" title="Settings">⚙️</button>
+                </div>
             </div>
         </header>
 
-        <!-- Repository Setup -->
-        <div class="repo-setup" id="repo-setup">
-            <div class="setup-card">
-                <h2>Connect Your Repository</h2>
-                <p class="setup-description">
-                    Enter your GitHub repository to visualize edit history.
-                    Works with any public repo containing text or markdown files.
-                </p>
-
-                <div class="form-group">
-                    <label for="repo-url">Repository URL</label>
-                    <input
-                        type="text"
-                        id="repo-url"
-                        placeholder="https://github.com/username/repo or username/repo"
-                        value="mmulqu/Mushussu"
-                    >
-                    <small>Example: octocat/Hello-World or https://github.com/octocat/Hello-World</small>
+        <!-- Settings Modal -->
+        <div id="settings-modal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Settings</h2>
+                    <button id="close-settings" class="btn-close">×</button>
                 </div>
-
-                <div class="form-group">
-                    <label for="base-path">Novel Directory (optional)</label>
-                    <input
-                        type="text"
-                        id="base-path"
-                        placeholder="e.g., Novel_original"
-                        value="Novel_original"
-                    >
-                    <small>Leave empty to browse all files, or specify a directory path</small>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Repository (owner/repo)</label>
+                        <input type="text" id="repo-input" placeholder="mmulqu/Mushussu" value="mmulqu/Mushussu">
+                    </div>
+                    <div class="form-group">
+                        <label>Branch</label>
+                        <input type="text" id="branch-input" placeholder="main" value="main">
+                    </div>
+                    <div class="form-group">
+                        <label>Novel Directory</label>
+                        <input type="text" id="path-input" placeholder="Novel_original" value="Novel_original">
+                    </div>
+                    <div class="form-group">
+                        <label>GitHub Token (required for push)</label>
+                        <input type="password" id="token-input" placeholder="ghp_xxxxxxxxxxxx">
+                        <small><a href="https://github.com/settings/tokens/new?scopes=repo" target="_blank">Create token</a> with 'repo' scope</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Author Name</label>
+                        <input type="text" id="author-name" placeholder="Your Name" value="Novel Author">
+                    </div>
+                    <div class="form-group">
+                        <label>Author Email</label>
+                        <input type="email" id="author-email" placeholder="you@example.com" value="author@example.com">
+                    </div>
                 </div>
-
-                <div class="form-group">
-                    <label for="github-token">GitHub Token (optional)</label>
-                    <input
-                        type="password"
-                        id="github-token"
-                        placeholder="ghp_xxxxxxxxxxxx"
-                    >
-                    <small>
-                        For private repos or higher rate limits.
-                        <a href="https://github.com/settings/tokens" target="_blank">Create token</a>
-                    </small>
+                <div class="modal-footer">
+                    <button id="save-settings" class="btn-primary">Save & Load Files</button>
                 </div>
-
-                <button class="btn-primary" id="connect-btn">Connect Repository</button>
-
-                <div class="error-message" id="setup-error" style="display: none;"></div>
             </div>
         </div>
 
-        <!-- Main Content (hidden until repo is loaded) -->
-        <div class="main-content" id="main-content" style="display: none;">
-            <!-- Repository Info Bar -->
-            <div class="repo-info">
-                <div class="repo-name">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                        <path d="M2 2.5A2.5 2.5 0 014.5 0h8.75a.75.75 0 01.75.75v12.5a.75.75 0 01-.75.75h-2.5a.75.75 0 110-1.5h1.75v-2h-8a1 1 0 00-.714 1.7.75.75 0 01-1.072 1.05A2.495 2.495 0 012 11.5v-9zm10.5-1V9h-8c-.356 0-.694.074-1 .208V2.5a1 1 0 011-1h8zM5 12.25v3.25a.25.25 0 00.4.2l1.45-1.087a.25.25 0 01.3 0L8.6 15.7a.25.25 0 00.4-.2v-3.25a.25.25 0 00-.25-.25h-3.5a.25.25 0 00-.25.25z"/>
-                    </svg>
-                    <span id="current-repo"></span>
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Editor Pane -->
+            <div class="editor-pane">
+                <div class="pane-header">
+                    <h3>✏️ Editor</h3>
+                    <div class="editor-info">
+                        <span id="word-count">0 words</span>
+                        <span id="change-indicator"></span>
+                    </div>
                 </div>
-                <button class="btn-small" id="change-repo-btn">Change Repository</button>
+                <textarea id="editor" class="editor" placeholder="Click Settings (⚙️) to connect your repository..."></textarea>
             </div>
 
-            <div class="content-wrapper">
-                <!-- Sidebar -->
-                <aside class="sidebar">
-                    <!-- Files Section -->
-                    <section class="sidebar-section">
-                        <h2>📁 Files</h2>
-                        <div id="file-list" class="file-list">
-                            <div class="loading">Loading files...</div>
-                        </div>
-                    </section>
-
-                    <!-- Commits Section -->
-                    <section class="sidebar-section">
-                        <h2>📝 Commits</h2>
-                        <div class="commit-filter">
-                            <label>
-                                <input type="checkbox" id="filter-current-file">
-                                Filter by selected file
-                            </label>
-                        </div>
-                        <div id="commit-list" class="commit-list">
-                            <div class="loading">Loading commits...</div>
-                        </div>
-                    </section>
-                </aside>
-
-                <!-- Main View -->
-                <main class="main-view">
-                    <div class="view-controls">
-                        <button class="btn active" id="btn-unified">Unified Diff</button>
-                        <button class="btn" id="btn-file">View File</button>
-                        <div class="spacer"></div>
-                        <div class="file-info">
-                            <span id="current-file">Select a file or commit to begin</span>
-                        </div>
+            <!-- Diff Pane -->
+            <div class="diff-pane">
+                <div class="pane-header">
+                    <h3>🔍 Changes</h3>
+                    <div class="diff-controls">
+                        <button id="toggle-commits" class="btn-small">Recent Commits</button>
                     </div>
-
-                    <div id="content-area" class="content-area">
-                        <div class="welcome">
-                            <h2>Welcome to Novel Diff Viewer</h2>
-                            <p>A lightweight tool for visualizing changes to your novel manuscripts from LLM edits.</p>
-                            <p><strong>Get started:</strong></p>
-                            <ul>
-                                <li>👈 Select a file from the sidebar to view its contents</li>
-                                <li>👈 Click a commit to see what changed</li>
-                                <li>🟢 Green lines show added text</li>
-                                <li>🔴 Red lines show removed text</li>
-                            </ul>
-                        </div>
+                </div>
+                <div id="diff-view" class="diff-view">
+                    <div class="empty-state">
+                        <p>No changes yet</p>
+                        <small>Edit the text to see differences</small>
                     </div>
-                </main>
+                </div>
+
+                <!-- Commits Panel (hidden by default) -->
+                <div id="commits-panel" class="commits-panel" style="display: none;">
+                    <div class="commits-header">
+                        <h4>Recent Commits</h4>
+                        <button id="close-commits" class="btn-close">×</button>
+                    </div>
+                    <div id="commits-list" class="commits-list">
+                        <div class="loading">Loading commits...</div>
+                    </div>
+                </div>
             </div>
+        </div>
+
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div id="status-message">Ready</div>
+            <div id="file-info"></div>
         </div>
     </div>
 

@@ -1,234 +1,213 @@
-# 📖 Novel Diff Viewer
+# 📝 Novel Editor
 
-A lightweight, open-source web application for visualizing LLM edits to novel manuscripts. Perfect for tracking changes made by AI agents like Claude.
+A simple web-based text editor for novel writing with real-time diff visualization. Perfect for tracking changes made by LLM agents like Claude or your own edits.
 
-**[🚀 Live Demo](https://mmulqu.github.io/Mushussu/)** (GitHub Pages version)
+**[🚀 Try it now](https://mmulqu.github.io/Mushussu/)** - No installation required!
 
-![Novel Diff Viewer Screenshot](https://via.placeholder.com/800x450/0d1117/58a6ff?text=Novel+Diff+Viewer)
+## ✨ What It Does
 
-## ✨ Features
+1. **Edit your novel files** in a clean text editor
+2. **See changes in real-time** - green for additions, red for removals
+3. **Commit & push** directly to GitHub
+4. **View commit history** to see what changed when
 
-- **🎨 Color-Coded Diffs**: Green for additions, red for removals
-- **📁 File Browser**: Browse all text and markdown files
-- **📝 Commit History**: Chronological view of all changes
-- **🔍 Filter by File**: See commit history for specific files
-- **🌐 Pure Client-Side**: No server required, runs entirely in browser
-- **🔓 Open Source**: MIT licensed, fork and customize as needed
-- **🎯 GitHub Integration**: Works with any public GitHub repository
+That's it. Simple and focused.
 
 ## 🚀 Quick Start
 
-### Option 1: Use the Hosted Version (Easiest)
+### 1. Get a GitHub Token
 
-1. Visit: **https://mmulqu.github.io/Mushussu/**
-2. Enter your GitHub repository URL (e.g., `username/repo`)
-3. Optionally specify a directory path (e.g., `Novel_original`)
-4. Click "Connect Repository"
+You need a token to read/write your repository:
 
-### Option 2: Fork for Your Own Repo
+1. Go to: https://github.com/settings/tokens/new?scopes=repo
+2. Give it a name like "Novel Editor"
+3. Select scope: **`repo`** (Full control of private repositories)
+4. Click "Generate token"
+5. **Copy the token** (you won't see it again!)
 
-1. **Fork this repository** on GitHub
-2. **Enable GitHub Pages**:
-   - Go to Settings → Pages
-   - Source: Deploy from branch `main`
+### 2. Open the Editor
+
+Visit: **https://mmulqu.github.io/Mushussu/**
+
+### 3. Configure Settings
+
+Click the ⚙️ Settings button and enter:
+
+- **Repository**: `your-username/your-repo` (e.g., `mmulqu/Mushussu`)
+- **Branch**: `main` (or whatever branch you use)
+- **Novel Directory**: `Novel_original` (or your folder path)
+- **GitHub Token**: Paste the token you created
+- **Author Name/Email**: Your name for commits
+
+Click "Save & Load Files"
+
+### 4. Start Writing!
+
+1. Select a file from the dropdown
+2. Edit the text in the left pane
+3. See your changes highlighted in the right pane
+4. Click "Commit & Push" when ready
+
+## 📖 Usage
+
+### Editing
+
+- Type in the **left pane** (the editor)
+- See **real-time diffs** in the right pane
+- **Green** = added lines
+- **Red** = removed lines
+- **Gray** = unchanged context
+
+### Saving
+
+1. Make your edits
+2. Click **"Commit & Push"**
+3. Enter a commit message
+4. Done! Your changes are on GitHub
+
+### Viewing History
+
+- Click **"Recent Commits"** to see commit history
+- Click any commit to view its diff
+- Filter commits to current file automatically
+
+### Refreshing
+
+- Click **"Refresh"** to reload from GitHub
+- Useful after your LLM agent makes changes
+- Also refreshes automatically after you commit
+
+## 🤖 Works With LLM Agents
+
+This editor is designed to work alongside Claude Agent SDK:
+
+**Typical Workflow:**
+
+1. **Claude edits files** via the Agent SDK
+2. **Claude commits** to GitHub
+3. **Click "Refresh"** in the editor to see Claude's changes
+4. **Make your own edits** in the web editor
+5. **Commit your changes** back
+
+Both you and the AI can edit the same files, and you'll see all changes highlighted!
+
+## 🎨 Interface
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  📝 Novel Editor         [Chapter1.txt ▼] [Refresh] [Commit] [⚙️]
+├──────────────────────────┬──────────────────────────────┤
+│  ✏️ Editor              │  🔍 Changes                  │
+│                          │                              │
+│  Your text goes here...  │  + Added line (green)        │
+│  Edit freely!            │  - Removed line (red)        │
+│                          │    Unchanged line            │
+│                          │                              │
+│  (word count)            │  [Recent Commits]            │
+└──────────────────────────┴──────────────────────────────┘
+│  Ready                                    Chapter1.txt   │
+└─────────────────────────────────────────────────────────┘
+```
+
+## 🔒 Security & Privacy
+
+- **Token stays local**: Stored in your browser's localStorage only
+- **No backend**: Direct GitHub API calls from your browser
+- **Open source**: Audit the code yourself - it's just 3 files
+- **No tracking**: Zero analytics or data collection
+
+## 🛠️ Technical Details
+
+**Tech Stack:**
+- Pure vanilla JavaScript (no frameworks)
+- GitHub REST API for all operations
+- localStorage for config persistence
+- CSS Grid for layout
+
+**File Size:**
+- HTML: ~5KB
+- CSS: ~7KB
+- JavaScript: ~13KB
+- **Total: ~25KB** uncompressed
+
+**No Build Process:**
+- No npm, no webpack, no compilation
+- Just open `index.html` in a browser
+- Or serve with any static file server
+
+## 📂 How to Host Your Own
+
+### Option 1: GitHub Pages (Easiest)
+
+1. Fork this repository
+2. Enable GitHub Pages:
+   - Settings → Pages
+   - Source: `main` branch
    - Folder: `/docs`
-3. **Visit your GitHub Pages URL**: `https://yourusername.github.io/yourrepo/`
+3. Visit: `https://yourusername.github.io/yourrepo/`
+
+### Option 2: Any Static Host
+
+Upload the `docs/` folder to:
+- Netlify
+- Vercel
+- Cloudflare Pages
+- Any web server
 
 ### Option 3: Run Locally
 
 ```bash
-# Clone the repository
-git clone https://github.com/mmulqu/Mushussu.git
-cd Mushussu/docs
-
-# Serve with any static file server
+cd docs
 python3 -m http.server 8000
-# OR
-npx serve .
-
-# Open browser to http://localhost:8000
+# Visit: http://localhost:8000
 ```
 
-## 📚 Usage
-
-### For Public Repositories
-
-Just enter the repository URL - no authentication needed!
-
-```
-mmulqu/Mushussu
-```
-
-### For Private Repositories
-
-1. **Create a GitHub Personal Access Token**:
-   - Go to: https://github.com/settings/tokens
-   - Click "Generate new token (classic)"
-   - Scopes: Select `repo` (Full control of private repositories)
-   - Click "Generate token" and copy it
-
-2. **Enter the token** in the "GitHub Token" field when connecting
-
-### Filter by Directory
-
-If your novel files are in a specific directory (e.g., `Novel_original`), enter that path to filter the view:
-
-```
-Novel Directory: Novel_original
-```
-
-## 🤖 Integration with Claude Agent SDK
-
-This tool is designed to work seamlessly with Claude Agent SDK workflows:
-
-1. **Claude edits your novel files** via the SDK
-2. **Claude commits the changes** to git
-3. **Visualize the edits** in the Novel Diff Viewer
-
-Example workflow:
-```bash
-# Claude Agent SDK session
-claude> Edit Chapter1.txt and add a new dialogue scene
-# ... Claude makes edits ...
-claude> Commit the changes
-# ... Claude commits to git ...
-
-# Then view the changes at:
-# https://mmulqu.github.io/Mushussu/
-```
-
-## 🛠️ How It Works
-
-### Architecture
-
-```
-┌─────────────────┐
-│   Web Browser   │
-│  (HTML/CSS/JS)  │
-└────────┬────────┘
-         │
-         │ HTTPS Requests
-         ▼
-┌─────────────────┐
-│  GitHub API     │
-│  - Commits      │
-│  - File Tree    │
-│  - Diffs        │
-│  - Contents     │
-└─────────────────┘
-```
-
-### No Backend Required
-
-This is a **pure client-side application**:
-- Uses GitHub API directly from the browser
-- No server, no database, no installation
-- State saved in browser localStorage
-- Works with any GitHub repository
-
-### Rate Limits
-
-**Without token**: 60 requests/hour per IP
-**With token**: 5,000 requests/hour
-
-For most novel writing workflows, the free tier is sufficient. Add a token if you hit rate limits.
-
-## 📂 Project Structure
-
-```
-docs/
-├── index.html      # Main application HTML
-├── styles.css      # GitHub-themed dark mode styles
-├── app.js          # GitHub API integration & diff rendering
-└── README.md       # This file
-```
-
-## 🎨 Features in Detail
-
-### Diff Visualization
-
-- **Line-by-line comparison** with color coding
-- **Line numbers** for easy reference
-- **Unified diff format** (standard git diff)
-- **Monospace font** for prose readability
-
-### File Browser
-
-- Lists all `.txt` and `.md` files
-- Optional directory filtering
-- File size display
-- Sorted alphabetically
-
-### Commit History
-
-- Chronological commit list
-- Commit hash, message, author
-- Relative timestamps (e.g., "2h ago")
-- Filter by selected file
-
-## 🔒 Privacy & Security
-
-- **No data stored on servers**: Everything runs in your browser
-- **GitHub tokens never leave your machine**: Stored in localStorage only
-- **Open source**: Audit the code yourself
-- **No tracking or analytics**: Pure static site
-
-## 🤝 For Other Users
-
-### How to Use This Tool
-
-**Anyone can use the hosted version** without forking:
-1. Visit https://mmulqu.github.io/Mushussu/
-2. Enter your GitHub repository URL
-3. Start exploring your diffs
-
-**Or fork it for customization**:
-1. Fork the repository
-2. Customize the theme, filters, or features
-3. Enable GitHub Pages on your fork
-4. Share your customized version
-
-### Use Cases
+## 💡 Use Cases
 
 - **Novel writing with AI assistance**: Track Claude's edits
-- **Collaborative writing**: Review co-author changes
-- **Version control visualization**: Better than raw git diffs for prose
-- **Manuscript history**: See how your story evolved
+- **Solo novel writing**: Simple editor + version control
+- **Collaborative writing**: See what others changed
+- **Manuscript revision**: Compare versions easily
 - **Educational**: Learn how diffs work
 
-## 🛣️ Roadmap
+## ❓ FAQ
 
-Future enhancements:
-- [ ] Side-by-side diff view
-- [ ] Export diffs as formatted documents
-- [ ] Compare arbitrary commits
-- [ ] Syntax highlighting for code files
-- [ ] Dark/light theme toggle
-- [ ] Mobile-responsive improvements
+**Q: Can I use this with private repos?**
+A: Yes! Just make sure your GitHub token has `repo` scope.
 
-## 📝 License
+**Q: Does it work offline?**
+A: No, it needs GitHub API access to read/write files.
 
-MIT License - See LICENSE file for details
+**Q: Can I edit multiple files at once?**
+A: No, one file at a time. Switch files with the dropdown.
 
-## 🙏 Acknowledgments
+**Q: Will it work with other git hosts?**
+A: No, it's GitHub-specific. But you could fork and adapt it!
 
-Built for use with:
-- [Claude Agent SDK](https://github.com/anthropics/anthropic-sdk-python)
-- [GitHub REST API](https://docs.github.com/en/rest)
+**Q: What if I make changes and Claude makes changes?**
+A: Click "Refresh" to load Claude's changes. If you have unsaved edits, you'll lose them. Commit often!
+
+**Q: Can I see diffs between arbitrary commits?**
+A: Not yet, but that's a good feature idea!
 
 ## 🐛 Issues & Contributing
 
-Found a bug? Have a feature request?
+Found a bug? Want a feature?
 
 - **Issues**: https://github.com/mmulqu/Mushussu/issues
 - **Pull Requests**: Welcome!
+- **Discussions**: Use GitHub Discussions
 
-## 📞 Support
+## 📝 License
 
-- GitHub Issues: Best for bugs and features
-- Documentation: This README
-- Examples: See the live demo with the Mushussu repo
+MIT License - Use it however you want!
+
+## 🙏 Acknowledgments
+
+Built for novel writers using AI tools like:
+- [Claude Agent SDK](https://github.com/anthropics/anthropic-sdk-python)
+- [GitHub API](https://docs.github.com/en/rest)
 
 ---
 
-**Made with 📚 for novel writers using AI assistance**
+**Made for writers who want to see what changed** 📚

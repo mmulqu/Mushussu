@@ -1,4 +1,4 @@
-/* Novel Diff Viewer - GitHub Pages Edition */
+/* Novel Editor - Simplified */
 
 :root {
     --bg-primary: #0d1117;
@@ -11,7 +11,6 @@
     --accent-hover: #1f6feb;
     --success-color: #3fb950;
     --danger-color: #f85149;
-    --warning-color: #d29922;
     --add-bg: rgba(63, 185, 80, 0.15);
     --add-color: #3fb950;
     --remove-bg: rgba(248, 81, 73, 0.15);
@@ -25,7 +24,7 @@
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     background: var(--bg-primary);
     color: var(--text-primary);
     height: 100vh;
@@ -41,89 +40,196 @@ body {
 /* Header */
 .header {
     background: var(--bg-secondary);
-    padding: 1.5rem 2rem;
     border-bottom: 1px solid var(--border-color);
+    padding: 0.75rem 1.5rem;
 }
 
 .header-content {
-    max-width: 1200px;
-    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
 }
 
 .header h1 {
-    font-size: 1.75rem;
+    font-size: 1.25rem;
     font-weight: 600;
-    margin-bottom: 0.5rem;
 }
 
-.subtitle {
-    font-size: 0.95rem;
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.file-select {
+    padding: 0.5rem 1rem;
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 0.9rem;
+    min-width: 250px;
+    cursor: pointer;
+}
+
+.file-select:focus {
+    outline: none;
+    border-color: var(--accent-color);
+}
+
+/* Buttons */
+.btn-primary {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: var(--success-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-primary:hover:not(:disabled) {
+    opacity: 0.85;
+}
+
+.btn-primary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.btn-secondary {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+    background: var(--bg-primary);
+    border-color: var(--accent-color);
+}
+
+.btn-small {
+    padding: 0.375rem 0.75rem;
+    background: var(--bg-tertiary);
     color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
 }
 
-/* Repository Setup */
-.repo-setup {
-    flex: 1;
+.btn-small:hover {
+    color: var(--text-primary);
+    border-color: var(--accent-color);
+}
+
+.btn-close {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+}
+
+.btn-close:hover {
+    color: var(--text-primary);
+}
+
+/* Modal */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 2rem;
-    overflow-y: auto;
+    z-index: 1000;
 }
 
-.setup-card {
+.modal-content {
     background: var(--bg-secondary);
     border: 1px solid var(--border-color);
     border-radius: 8px;
-    padding: 2rem;
-    max-width: 600px;
-    width: 100%;
+    width: 90%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow: auto;
 }
 
-.setup-card h2 {
-    font-size: 1.5rem;
-    margin-bottom: 0.75rem;
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
 }
 
-.setup-description {
-    color: var(--text-secondary);
-    margin-bottom: 2rem;
-    line-height: 1.6;
+.modal-header h2 {
+    font-size: 1.25rem;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.modal-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
 }
 
 .form-group {
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.25rem;
 }
 
 .form-group label {
     display: block;
     margin-bottom: 0.5rem;
-    font-weight: 600;
-    font-size: 0.95rem;
+    font-weight: 500;
+    font-size: 0.9rem;
 }
 
 .form-group input {
     width: 100%;
-    padding: 0.75rem;
+    padding: 0.625rem;
     background: var(--bg-primary);
     border: 1px solid var(--border-color);
     border-radius: 6px;
     color: var(--text-primary);
-    font-size: 0.95rem;
-    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
 }
 
 .form-group input:focus {
     outline: none;
     border-color: var(--accent-color);
-    box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.1);
 }
 
 .form-group small {
     display: block;
-    margin-top: 0.5rem;
+    margin-top: 0.375rem;
     color: var(--text-secondary);
-    font-size: 0.85rem;
+    font-size: 0.8rem;
 }
 
 .form-group small a {
@@ -135,354 +241,99 @@ body {
     text-decoration: underline;
 }
 
-/* Buttons */
-.btn-primary {
-    width: 100%;
-    padding: 0.875rem;
-    background: var(--accent-color);
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-
-.btn-primary:hover {
-    background: var(--accent-hover);
-}
-
-.btn-primary:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.btn-small {
-    padding: 0.5rem 1rem;
-    background: var(--bg-tertiary);
-    color: var(--text-primary);
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    font-size: 0.875rem;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.btn-small:hover {
-    background: var(--bg-primary);
-    border-color: var(--accent-color);
-}
-
-.btn {
-    padding: 0.5rem 1rem;
-    background: var(--bg-tertiary);
-    color: var(--text-primary);
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.875rem;
-    transition: all 0.2s;
-}
-
-.btn:hover {
-    background: var(--bg-primary);
-}
-
-.btn.active {
-    background: var(--accent-color);
-    border-color: var(--accent-color);
-    color: white;
-}
-
-/* Error Message */
-.error-message {
-    margin-top: 1rem;
-    padding: 1rem;
-    background: var(--remove-bg);
-    color: var(--remove-color);
-    border: 1px solid var(--remove-color);
-    border-radius: 6px;
-    font-size: 0.9rem;
-}
-
-/* Repository Info Bar */
-.repo-info {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.75rem 1.5rem;
-    background: var(--bg-secondary);
-    border-bottom: 1px solid var(--border-color);
-}
-
-.repo-name {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-weight: 600;
-}
-
 /* Main Content */
 .main-content {
     flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    overflow: hidden;
+}
+
+/* Editor Pane */
+.editor-pane {
     display: flex;
     flex-direction: column;
-    overflow: hidden;
-}
-
-.content-wrapper {
-    display: flex;
-    flex: 1;
-    overflow: hidden;
-}
-
-/* Sidebar */
-.sidebar {
-    width: 340px;
-    background: var(--bg-secondary);
     border-right: 1px solid var(--border-color);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
 }
 
-.sidebar-section {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.sidebar-section:last-child {
-    border-bottom: none;
-}
-
-.sidebar-section h2 {
-    font-size: 0.85rem;
-    font-weight: 600;
-    padding: 0.875rem 1rem;
-    background: var(--bg-tertiary);
-    border-bottom: 1px solid var(--border-color);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-/* File List */
-.file-list {
-    overflow-y: auto;
-    flex: 1;
-}
-
-.file-item {
-    padding: 0.875rem 1rem;
-    cursor: pointer;
-    border-bottom: 1px solid var(--border-color);
-    transition: background 0.2s;
-}
-
-.file-item:hover {
-    background: var(--bg-tertiary);
-}
-
-.file-item.active {
-    background: var(--accent-color);
-    color: white;
-}
-
-.file-name {
-    font-weight: 500;
-    margin-bottom: 0.25rem;
-    font-family: 'Courier New', monospace;
-    font-size: 0.9rem;
-}
-
-.file-meta {
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-}
-
-.file-item.active .file-meta {
-    color: rgba(255, 255, 255, 0.8);
-}
-
-/* Commit List */
-.commit-filter {
-    padding: 0.75rem 1rem;
-    background: var(--bg-tertiary);
-    border-bottom: 1px solid var(--border-color);
-    font-size: 0.85rem;
-}
-
-.commit-filter label {
+.pane-header {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    cursor: pointer;
-}
-
-.commit-list {
-    overflow-y: auto;
-    flex: 1;
-}
-
-.commit-item {
-    padding: 0.875rem 1rem;
-    cursor: pointer;
-    border-bottom: 1px solid var(--border-color);
-    transition: background 0.2s;
-}
-
-.commit-item:hover {
-    background: var(--bg-tertiary);
-}
-
-.commit-item.active {
-    background: var(--accent-color);
-    color: white;
-}
-
-.commit-hash {
-    font-family: 'Courier New', monospace;
-    font-size: 0.8rem;
-    color: var(--success-color);
-    margin-bottom: 0.25rem;
-}
-
-.commit-item.active .commit-hash {
-    color: rgba(255, 255, 255, 0.9);
-}
-
-.commit-message {
-    font-size: 0.9rem;
-    margin-bottom: 0.25rem;
-    font-weight: 500;
-    line-height: 1.4;
-}
-
-.commit-meta {
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-}
-
-.commit-item.active .commit-meta {
-    color: rgba(255, 255, 255, 0.8);
-}
-
-/* Main View */
-.main-view {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-}
-
-.view-controls {
-    padding: 0.875rem 1rem;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
     background: var(--bg-secondary);
     border-bottom: 1px solid var(--border-color);
+}
+
+.pane-header h3 {
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.editor-info {
     display: flex;
-    gap: 0.5rem;
     align-items: center;
-}
-
-.spacer {
-    flex: 1;
-}
-
-.file-info {
+    gap: 1rem;
     font-size: 0.85rem;
     color: var(--text-secondary);
 }
 
-#current-file {
-    font-family: 'Courier New', monospace;
-    color: var(--text-primary);
-}
-
-.content-area {
+.editor {
     flex: 1;
-    overflow: auto;
     padding: 1.5rem;
-}
-
-/* Welcome Screen */
-.welcome {
-    max-width: 700px;
-    margin: 2rem auto;
-}
-
-.welcome h2 {
-    margin-bottom: 1rem;
-    font-size: 1.75rem;
-}
-
-.welcome p {
-    margin-bottom: 1rem;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    border: none;
+    resize: none;
+    font-family: 'Georgia', serif;
+    font-size: 1rem;
     line-height: 1.7;
+}
+
+.editor:focus {
+    outline: none;
+}
+
+.editor::placeholder {
     color: var(--text-secondary);
 }
 
-.welcome ul {
-    list-style: none;
-    margin-top: 2rem;
-}
-
-.welcome li {
-    margin-bottom: 0.75rem;
-    padding-left: 1.5rem;
+/* Diff Pane */
+.diff-pane {
+    display: flex;
+    flex-direction: column;
     position: relative;
 }
 
-/* Diff Display */
-.diff-container {
-    font-family: 'Courier New', monospace;
-    font-size: 0.875rem;
-    line-height: 1.5;
+.diff-view {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+    background: var(--bg-primary);
 }
 
-.diff-file {
-    margin-bottom: 2rem;
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--text-secondary);
 }
 
-.diff-header {
-    background: var(--bg-tertiary);
-    padding: 0.875rem 1rem;
-    border: 1px solid var(--border-color);
-    border-radius: 6px 6px 0 0;
-    font-weight: 600;
+.empty-state p {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
 }
 
-.diff-body {
-    border: 1px solid var(--border-color);
-    border-top: none;
-    border-radius: 0 0 6px 6px;
-    overflow-x: auto;
+.empty-state small {
+    font-size: 0.9rem;
 }
 
+/* Diff Lines */
 .diff-line {
     display: flex;
+    font-family: 'Georgia', serif;
+    font-size: 1rem;
+    line-height: 1.7;
     padding: 0.125rem 0;
-    white-space: pre;
-    font-family: 'Courier New', monospace;
-}
-
-.line-number {
-    display: inline-block;
-    min-width: 60px;
-    padding: 0 0.875rem;
-    text-align: right;
-    color: var(--text-secondary);
-    user-select: none;
-    flex-shrink: 0;
-}
-
-.line-content {
-    flex: 1;
-    padding: 0 1rem;
-    white-space: pre-wrap;
-    word-break: break-word;
 }
 
 .diff-line.add {
@@ -501,29 +352,105 @@ body {
     color: var(--remove-color);
 }
 
-.diff-line.context {
+.diff-line.context .line-content {
     color: var(--text-primary);
 }
 
-.diff-line.hunk-header {
-    background: var(--bg-tertiary);
-    color: var(--accent-color);
-    font-weight: 600;
+.line-prefix {
+    width: 30px;
+    flex-shrink: 0;
+    text-align: center;
+    color: var(--text-secondary);
+    user-select: none;
 }
 
-/* File Content Display */
-.file-content {
-    font-family: 'Courier New', monospace;
-    font-size: 0.875rem;
-    line-height: 1.7;
+.line-content {
+    flex: 1;
+    padding: 0 1rem;
     white-space: pre-wrap;
-    background: var(--bg-secondary);
-    padding: 1.5rem;
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
+    word-break: break-word;
 }
 
-/* Loading State */
+/* Commits Panel */
+.commits-panel {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 350px;
+    background: var(--bg-secondary);
+    border-left: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.commits-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.875rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.commits-header h4 {
+    font-size: 0.95rem;
+}
+
+.commits-list {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.commit-item {
+    padding: 0.875rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.commit-item:hover {
+    background: var(--bg-tertiary);
+}
+
+.commit-hash {
+    font-family: monospace;
+    font-size: 0.8rem;
+    color: var(--success-color);
+    margin-bottom: 0.25rem;
+}
+
+.commit-message {
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+}
+
+.commit-meta {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+/* Status Bar */
+.status-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 1rem;
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border-color);
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.status-bar.success {
+    color: var(--success-color);
+}
+
+.status-bar.error {
+    color: var(--danger-color);
+}
+
+/* Loading */
 .loading {
     padding: 1.5rem;
     text-align: center;
@@ -531,10 +458,16 @@ body {
     font-style: italic;
 }
 
-/* Scrollbar Styling */
+/* Change Indicator */
+#change-indicator {
+    color: var(--warning-color);
+    font-weight: 500;
+}
+
+/* Scrollbar */
 ::-webkit-scrollbar {
-    width: 12px;
-    height: 12px;
+    width: 10px;
+    height: 10px;
 }
 
 ::-webkit-scrollbar-track {
@@ -543,7 +476,7 @@ body {
 
 ::-webkit-scrollbar-thumb {
     background: var(--bg-tertiary);
-    border-radius: 6px;
+    border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -552,11 +485,15 @@ body {
 
 /* Responsive */
 @media (max-width: 768px) {
-    .sidebar {
-        width: 280px;
+    .main-content {
+        grid-template-columns: 1fr;
     }
 
-    .content-area {
-        padding: 1rem;
+    .diff-pane {
+        display: none;
+    }
+
+    .header-controls {
+        flex-wrap: wrap;
     }
 }
