@@ -45,7 +45,6 @@ const el = {
     wordCount: document.getElementById('word-count'),
     changeIndicator: document.getElementById('change-indicator'),
     diffView: document.getElementById('diff-view'),
-    syncScroll: document.getElementById('sync-scroll'),
 
     toggleCommits: document.getElementById('toggle-commits'),
     commitsPanel: document.getElementById('commits-panel'),
@@ -85,10 +84,10 @@ function setupEventListeners() {
 
     // Editor
     el.editor.addEventListener('input', handleEditorChange);
-    el.editor.addEventListener('scroll', handleEditorScroll);
 
-    // Diff view scroll (for bidirectional sync)
-    el.diffView.addEventListener('scroll', handleDiffScroll);
+    // Text selection to jump to location in diff
+    el.editor.addEventListener('dblclick', handleEditorDoubleClick);
+    el.diffView.addEventListener('click', handleDiffClick);
 
     // Commits
     el.toggleCommits.addEventListener('click', () => {
@@ -98,96 +97,141 @@ function setupEventListeners() {
     el.closeCommits.addEventListener('click', () => el.commitsPanel.style.display = 'none');
 
     // Collapse/expand diff pane
-    el.collapseDiff.addEventListener('click', () => {
-        const diffPane = document.querySelector('.diff-pane');
-        const editorPane = document.querySelector('.editor-pane');
-        const mainContent = document.querySelector('.main-content');
-
-        diffPane.style.display = 'none';
-        editorPane.style.flex = '1';
-        editorPane.style.width = '100%';
-        mainContent.style.gridTemplateColumns = '1fr';
-        mainContent.style.gridTemplateRows = '1fr';
-
-        el.expandDiff.style.display = 'inline-block';
-    });
-
-    el.expandDiff.addEventListener('click', () => {
-        const diffPane = document.querySelector('.diff-pane');
-        const editorPane = document.querySelector('.editor-pane');
-        const mainContent = document.querySelector('.main-content');
-
-        diffPane.style.display = 'flex';
-        editorPane.style.flex = '';
-        editorPane.style.width = '';
-
-        // Check if we're on mobile (under 768px)
-        if (window.innerWidth <= 768) {
-            // Mobile: stack vertically
-            mainContent.style.gridTemplateColumns = '1fr';
-            mainContent.style.gridTemplateRows = '1fr 1fr';
-        } else {
-            // Desktop: side by side
-            mainContent.style.gridTemplateColumns = '1fr 1fr';
-            mainContent.style.gridTemplateRows = '1fr';
-        }
-
-        el.expandDiff.style.display = 'none';
-    });
+    el.collapseDiff.addEventListener('click', collapseDiff);
+    el.expandDiff.addEventListener('click', expandDiff);
 
     // Handle window resize to maintain proper layout
-    window.addEventListener('resize', () => {
-        const diffPane = document.querySelector('.diff-pane');
-        const mainContent = document.querySelector('.main-content');
+    window.addEventListener('resize', handleResize);
+}
 
-        // Only adjust if diff pane is visible
-        if (diffPane.style.display !== 'none') {
-            if (window.innerWidth <= 768) {
-                // Mobile: stack vertically
-                mainContent.style.gridTemplateColumns = '1fr';
-                mainContent.style.gridTemplateRows = '1fr 1fr';
-            } else {
-                // Desktop: side by side
-                mainContent.style.gridTemplateColumns = '1fr 1fr';
-                mainContent.style.gridTemplateRows = '1fr';
-            }
+function collapseDiff() {
+    const diffPane = document.querySelector('.diff-pane');
+    const editorPane = document.querySelector('.editor-pane');
+    const mainContent = document.querySelector('.main-content');
+
+    diffPane.style.display = 'none';
+    editorPane.style.flex = '1';
+    editorPane.style.width = '100%';
+    mainContent.style.gridTemplateColumns = '1fr';
+    mainContent.style.gridTemplateRows = '1fr';
+
+    el.expandDiff.style.display = 'inline-block';
+}
+
+function expandDiff() {
+    const diffPane = document.querySelector('.diff-pane');
+    const editorPane = document.querySelector('.editor-pane');
+    const mainContent = document.querySelector('.main-content');
+
+    diffPane.style.display = 'flex';
+    editorPane.style.flex = '';
+    editorPane.style.width = '';
+
+    applyResponsiveLayout(mainContent);
+
+    el.expandDiff.style.display = 'none';
+}
+
+function applyResponsiveLayout(mainContent) {
+    // Check if we're on mobile (under 768px)
+    if (window.innerWidth <= 768) {
+        // Mobile: stack vertically
+        mainContent.style.gridTemplateColumns = '1fr';
+        mainContent.style.gridTemplateRows = '1fr 1fr';
+    } else {
+        // Desktop: side by side
+        mainContent.style.gridTemplateColumns = '1fr 1fr';
+        mainContent.style.gridTemplateRows = '1fr';
+    }
+}
+
+function handleResize() {
+    const diffPane = document.querySelector('.diff-pane');
+    const mainContent = document.querySelector('.main-content');
+
+    // Only adjust if diff pane is visible
+    if (diffPane && diffPane.style.display !== 'none') {
+        applyResponsiveLayout(mainContent);
+    }
+}
+
+// Jump to text location (double-click in editor, click in diff)
+function handleEditorDoubleClick() {
+    if (state.isViewingCommitDiff) return; // Only works in live editing mode
+
+    const selection = window.getSelection();
+    const selectedText = selection.toString().trim();
+
+    if (!selectedText || selectedText.length < 3) {
+        // Get line at cursor position if no selection
+        const cursorPos = el.editor.selectionStart;
+        const lines = el.editor.value.substring(0, cursorPos).split('\n');
+        const currentLine = lines[lines.length - 1];
+
+        if (currentLine && currentLine.trim().length > 3) {
+            scrollToTextInDiff(currentLine.trim());
         }
-    });
+    } else {
+        scrollToTextInDiff(selectedText);
+    }
 }
 
-// Scroll sync (bidirectional)
-let isScrolling = false;
+function handleDiffClick(e) {
+    // Find the line content that was clicked
+    const lineElement = e.target.closest('.diff-line');
+    if (!lineElement) return;
 
-function handleEditorScroll() {
-    // Disable scroll sync when viewing a commit diff (content doesn't match editor)
-    if (!el.syncScroll.checked || isScrolling || state.isViewingCommitDiff) return;
+    const contentElement = lineElement.querySelector('.line-content');
+    if (!contentElement) return;
 
-    isScrolling = true;
-    const editorHeight = el.editor.scrollHeight - el.editor.clientHeight;
-    const diffHeight = el.diffView.scrollHeight - el.diffView.clientHeight;
+    const text = contentElement.textContent.trim();
+    if (text.length < 3) return;
 
-    if (editorHeight > 0 && diffHeight > 0) {
-        const scrollPercentage = el.editor.scrollTop / editorHeight;
-        el.diffView.scrollTop = scrollPercentage * diffHeight;
-    }
-
-    setTimeout(() => isScrolling = false, 50);
+    scrollToTextInEditor(text);
 }
 
-function handleDiffScroll() {
-    // Disable scroll sync when viewing a commit diff (content doesn't match editor)
-    if (!el.syncScroll.checked || isScrolling || state.isViewingCommitDiff) return;
+function scrollToTextInDiff(searchText) {
+    const diffLines = el.diffView.querySelectorAll('.diff-line .line-content');
 
-    isScrolling = true;
-    const editorHeight = el.editor.scrollHeight - el.editor.clientHeight;
-    const diffHeight = el.diffView.scrollHeight - el.diffView.clientHeight;
+    for (let i = 0; i < diffLines.length; i++) {
+        const lineText = diffLines[i].textContent;
+        if (lineText.includes(searchText)) {
+            // Found it - scroll to this line
+            diffLines[i].closest('.diff-line').scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
 
-    if (editorHeight > 0 && diffHeight > 0) {
-        const scrollPercentage = el.diffView.scrollTop / diffHeight;
-        el.editor.scrollTop = scrollPercentage * editorHeight;
+            // Highlight temporarily
+            const line = diffLines[i].closest('.diff-line');
+            line.style.outline = '2px solid var(--accent-color)';
+            setTimeout(() => {
+                line.style.outline = '';
+            }, 2000);
+
+            break;
+        }
     }
+}
 
-    setTimeout(() => isScrolling = false, 50);
+function scrollToTextInEditor(searchText) {
+    const editorContent = el.editor.value;
+    const index = editorContent.indexOf(searchText);
+
+    if (index !== -1) {
+        // Calculate line number
+        const beforeText = editorContent.substring(0, index);
+        const lineNumber = beforeText.split('\n').length;
+
+        // Scroll to approximate position
+        const totalLines = editorContent.split('\n').length;
+        const scrollPercentage = lineNumber / totalLines;
+        el.editor.scrollTop = scrollPercentage * (el.editor.scrollHeight - el.editor.clientHeight);
+
+        // Set cursor position
+        el.editor.setSelectionRange(index, index + searchText.length);
+        el.editor.focus();
+    }
 }
 
 function loadConfig() {
