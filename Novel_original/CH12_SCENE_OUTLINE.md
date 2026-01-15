@@ -438,7 +438,7 @@ When drafting this chapter:
 
 1. **Read first**: Ch11 ending, Ch13 placeholder, PHASE2_DECISIONS.md
 2. **Maintain voice**: Check Ch6-7 for Persephone's narrative style (sparse, sensory, elliptical)
-3. **Husband's name**: Choose grounded, non-symbolic name (David, Nathan, Chris, etc.)
+3. **Mike's characterization**: Ex-husband, father of Iphy, heterosexual male—maintain his psychotic break and compounded grief
 4. **Murder choreography**: Keep it ugly, not heroic—no slow-motion, no soundtrack, just brutal physics
 5. **Persephone's choice**: Let it be morally ambiguous—reader should understand her logic without endorsing it
 6. **Ending image**: Persephone walking into trees, birdsong increasing, Golden-winged Warbler call (ominous)
