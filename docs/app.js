@@ -100,18 +100,58 @@ function setupEventListeners() {
     // Collapse/expand diff pane
     el.collapseDiff.addEventListener('click', () => {
         const diffPane = document.querySelector('.diff-pane');
+        const editorPane = document.querySelector('.editor-pane');
         const mainContent = document.querySelector('.main-content');
+
         diffPane.style.display = 'none';
+        editorPane.style.flex = '1';
+        editorPane.style.width = '100%';
         mainContent.style.gridTemplateColumns = '1fr';
+        mainContent.style.gridTemplateRows = '1fr';
+
         el.expandDiff.style.display = 'inline-block';
     });
 
     el.expandDiff.addEventListener('click', () => {
         const diffPane = document.querySelector('.diff-pane');
+        const editorPane = document.querySelector('.editor-pane');
         const mainContent = document.querySelector('.main-content');
+
         diffPane.style.display = 'flex';
-        mainContent.style.gridTemplateColumns = '1fr 1fr';
+        editorPane.style.flex = '';
+        editorPane.style.width = '';
+
+        // Check if we're on mobile (under 768px)
+        if (window.innerWidth <= 768) {
+            // Mobile: stack vertically
+            mainContent.style.gridTemplateColumns = '1fr';
+            mainContent.style.gridTemplateRows = '1fr 1fr';
+        } else {
+            // Desktop: side by side
+            mainContent.style.gridTemplateColumns = '1fr 1fr';
+            mainContent.style.gridTemplateRows = '1fr';
+        }
+
         el.expandDiff.style.display = 'none';
+    });
+
+    // Handle window resize to maintain proper layout
+    window.addEventListener('resize', () => {
+        const diffPane = document.querySelector('.diff-pane');
+        const mainContent = document.querySelector('.main-content');
+
+        // Only adjust if diff pane is visible
+        if (diffPane.style.display !== 'none') {
+            if (window.innerWidth <= 768) {
+                // Mobile: stack vertically
+                mainContent.style.gridTemplateColumns = '1fr';
+                mainContent.style.gridTemplateRows = '1fr 1fr';
+            } else {
+                // Desktop: side by side
+                mainContent.style.gridTemplateColumns = '1fr 1fr';
+                mainContent.style.gridTemplateRows = '1fr';
+            }
+        }
     });
 }
 
