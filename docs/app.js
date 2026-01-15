@@ -508,9 +508,43 @@ async function viewCommitDiff(sha) {
 
         const diffText = await response.text();
 
-        // Simple display of diff
-        el.diffView.innerHTML = '<pre style="white-space: pre-wrap; padding: 1rem; font-size: 0.9rem; line-height: 1.5;">' +
-            escapeHtml(diffText) + '</pre>';
+        // Parse and render the diff with proper styling
+        el.diffView.innerHTML = '';
+
+        const lines = diffText.split('\n');
+        lines.forEach(line => {
+            const lineDiv = document.createElement('div');
+            lineDiv.className = 'diff-line';
+
+            const prefix = document.createElement('span');
+            prefix.className = 'line-prefix';
+
+            const content = document.createElement('span');
+            content.className = 'line-content';
+
+            if (line.startsWith('+') && !line.startsWith('+++')) {
+                lineDiv.classList.add('add');
+                prefix.textContent = '+';
+                content.textContent = line.substring(1);
+            } else if (line.startsWith('-') && !line.startsWith('---')) {
+                lineDiv.classList.add('remove');
+                prefix.textContent = '-';
+                content.textContent = line.substring(1);
+            } else if (line.startsWith('@@')) {
+                lineDiv.classList.add('context');
+                prefix.textContent = '@';
+                content.textContent = line;
+                content.style.color = 'var(--accent-color)';
+            } else {
+                lineDiv.classList.add('context');
+                prefix.textContent = ' ';
+                content.textContent = line;
+            }
+
+            lineDiv.appendChild(prefix);
+            lineDiv.appendChild(content);
+            el.diffView.appendChild(lineDiv);
+        });
 
         showStatus('Showing commit ' + sha.substring(0, 7));
 
