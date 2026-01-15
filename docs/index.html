@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Novel Diff Viewer - GitHub Edition</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1>📖 Novel Diff Viewer</h1>
+                <p class="subtitle">Visualize LLM edits to your novel manuscripts</p>
+            </div>
+        </header>
+
+        <!-- Repository Setup -->
+        <div class="repo-setup" id="repo-setup">
+            <div class="setup-card">
+                <h2>Connect Your Repository</h2>
+                <p class="setup-description">
+                    Enter your GitHub repository to visualize edit history.
+                    Works with any public repo containing text or markdown files.
+                </p>
+
+                <div class="form-group">
+                    <label for="repo-url">Repository URL</label>
+                    <input
+                        type="text"
+                        id="repo-url"
+                        placeholder="https://github.com/username/repo or username/repo"
+                        value="mmulqu/Mushussu"
+                    >
+                    <small>Example: octocat/Hello-World or https://github.com/octocat/Hello-World</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="base-path">Novel Directory (optional)</label>
+                    <input
+                        type="text"
+                        id="base-path"
+                        placeholder="e.g., Novel_original"
+                        value="Novel_original"
+                    >
+                    <small>Leave empty to browse all files, or specify a directory path</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="github-token">GitHub Token (optional)</label>
+                    <input
+                        type="password"
+                        id="github-token"
+                        placeholder="ghp_xxxxxxxxxxxx"
+                    >
+                    <small>
+                        For private repos or higher rate limits.
+                        <a href="https://github.com/settings/tokens" target="_blank">Create token</a>
+                    </small>
+                </div>
+
+                <button class="btn-primary" id="connect-btn">Connect Repository</button>
+
+                <div class="error-message" id="setup-error" style="display: none;"></div>
+            </div>
+        </div>
+
+        <!-- Main Content (hidden until repo is loaded) -->
+        <div class="main-content" id="main-content" style="display: none;">
+            <!-- Repository Info Bar -->
+            <div class="repo-info">
+                <div class="repo-name">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M2 2.5A2.5 2.5 0 014.5 0h8.75a.75.75 0 01.75.75v12.5a.75.75 0 01-.75.75h-2.5a.75.75 0 110-1.5h1.75v-2h-8a1 1 0 00-.714 1.7.75.75 0 01-1.072 1.05A2.495 2.495 0 012 11.5v-9zm10.5-1V9h-8c-.356 0-.694.074-1 .208V2.5a1 1 0 011-1h8zM5 12.25v3.25a.25.25 0 00.4.2l1.45-1.087a.25.25 0 01.3 0L8.6 15.7a.25.25 0 00.4-.2v-3.25a.25.25 0 00-.25-.25h-3.5a.25.25 0 00-.25.25z"/>
+                    </svg>
+                    <span id="current-repo"></span>
+                </div>
+                <button class="btn-small" id="change-repo-btn">Change Repository</button>
+            </div>
+
+            <div class="content-wrapper">
+                <!-- Sidebar -->
+                <aside class="sidebar">
+                    <!-- Files Section -->
+                    <section class="sidebar-section">
+                        <h2>📁 Files</h2>
+                        <div id="file-list" class="file-list">
+                            <div class="loading">Loading files...</div>
+                        </div>
+                    </section>
+
+                    <!-- Commits Section -->
+                    <section class="sidebar-section">
+                        <h2>📝 Commits</h2>
+                        <div class="commit-filter">
+                            <label>
+                                <input type="checkbox" id="filter-current-file">
+                                Filter by selected file
+                            </label>
+                        </div>
+                        <div id="commit-list" class="commit-list">
+                            <div class="loading">Loading commits...</div>
+                        </div>
+                    </section>
+                </aside>
+
+                <!-- Main View -->
+                <main class="main-view">
+                    <div class="view-controls">
+                        <button class="btn active" id="btn-unified">Unified Diff</button>
+                        <button class="btn" id="btn-file">View File</button>
+                        <div class="spacer"></div>
+                        <div class="file-info">
+                            <span id="current-file">Select a file or commit to begin</span>
+                        </div>
+                    </div>
+
+                    <div id="content-area" class="content-area">
+                        <div class="welcome">
+                            <h2>Welcome to Novel Diff Viewer</h2>
+                            <p>A lightweight tool for visualizing changes to your novel manuscripts from LLM edits.</p>
+                            <p><strong>Get started:</strong></p>
+                            <ul>
+                                <li>👈 Select a file from the sidebar to view its contents</li>
+                                <li>👈 Click a commit to see what changed</li>
+                                <li>🟢 Green lines show added text</li>
+                                <li>🔴 Red lines show removed text</li>
+                            </ul>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

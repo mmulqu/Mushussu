@@ -1,0 +1,562 @@
+/* Novel Diff Viewer - GitHub Pages Edition */
+
+:root {
+    --bg-primary: #0d1117;
+    --bg-secondary: #161b22;
+    --bg-tertiary: #21262d;
+    --text-primary: #c9d1d9;
+    --text-secondary: #8b949e;
+    --border-color: #30363d;
+    --accent-color: #58a6ff;
+    --accent-hover: #1f6feb;
+    --success-color: #3fb950;
+    --danger-color: #f85149;
+    --warning-color: #d29922;
+    --add-bg: rgba(63, 185, 80, 0.15);
+    --add-color: #3fb950;
+    --remove-bg: rgba(248, 81, 73, 0.15);
+    --remove-color: #f85149;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    height: 100vh;
+    overflow: hidden;
+}
+
+.app-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+/* Header */
+.header {
+    background: var(--bg-secondary);
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.header h1 {
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.subtitle {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+}
+
+/* Repository Setup */
+.repo-setup {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    overflow-y: auto;
+}
+
+.setup-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 2rem;
+    max-width: 600px;
+    width: 100%;
+}
+
+.setup-card h2 {
+    font-size: 1.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.setup-description {
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+    line-height: 1.6;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.75rem;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    font-family: 'Courier New', monospace;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.1);
+}
+
+.form-group small {
+    display: block;
+    margin-top: 0.5rem;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+}
+
+.form-group small a {
+    color: var(--accent-color);
+    text-decoration: none;
+}
+
+.form-group small a:hover {
+    text-decoration: underline;
+}
+
+/* Buttons */
+.btn-primary {
+    width: 100%;
+    padding: 0.875rem;
+    background: var(--accent-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-primary:hover {
+    background: var(--accent-hover);
+}
+
+.btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-small {
+    padding: 0.5rem 1rem;
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-small:hover {
+    background: var(--bg-primary);
+    border-color: var(--accent-color);
+}
+
+.btn {
+    padding: 0.5rem 1rem;
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: all 0.2s;
+}
+
+.btn:hover {
+    background: var(--bg-primary);
+}
+
+.btn.active {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    color: white;
+}
+
+/* Error Message */
+.error-message {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: var(--remove-bg);
+    color: var(--remove-color);
+    border: 1px solid var(--remove-color);
+    border-radius: 6px;
+    font-size: 0.9rem;
+}
+
+/* Repository Info Bar */
+.repo-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1.5rem;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.repo-name {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+}
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.content-wrapper {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 340px;
+    background: var(--bg-secondary);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.sidebar-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.sidebar-section:last-child {
+    border-bottom: none;
+}
+
+.sidebar-section h2 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.875rem 1rem;
+    background: var(--bg-tertiary);
+    border-bottom: 1px solid var(--border-color);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* File List */
+.file-list {
+    overflow-y: auto;
+    flex: 1;
+}
+
+.file-item {
+    padding: 0.875rem 1rem;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border-color);
+    transition: background 0.2s;
+}
+
+.file-item:hover {
+    background: var(--bg-tertiary);
+}
+
+.file-item.active {
+    background: var(--accent-color);
+    color: white;
+}
+
+.file-name {
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+}
+
+.file-meta {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.file-item.active .file-meta {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* Commit List */
+.commit-filter {
+    padding: 0.75rem 1rem;
+    background: var(--bg-tertiary);
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.85rem;
+}
+
+.commit-filter label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+.commit-list {
+    overflow-y: auto;
+    flex: 1;
+}
+
+.commit-item {
+    padding: 0.875rem 1rem;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border-color);
+    transition: background 0.2s;
+}
+
+.commit-item:hover {
+    background: var(--bg-tertiary);
+}
+
+.commit-item.active {
+    background: var(--accent-color);
+    color: white;
+}
+
+.commit-hash {
+    font-family: 'Courier New', monospace;
+    font-size: 0.8rem;
+    color: var(--success-color);
+    margin-bottom: 0.25rem;
+}
+
+.commit-item.active .commit-hash {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.commit-message {
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+.commit-meta {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.commit-item.active .commit-meta {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* Main View */
+.main-view {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.view-controls {
+    padding: 0.875rem 1rem;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.spacer {
+    flex: 1;
+}
+
+.file-info {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+#current-file {
+    font-family: 'Courier New', monospace;
+    color: var(--text-primary);
+}
+
+.content-area {
+    flex: 1;
+    overflow: auto;
+    padding: 1.5rem;
+}
+
+/* Welcome Screen */
+.welcome {
+    max-width: 700px;
+    margin: 2rem auto;
+}
+
+.welcome h2 {
+    margin-bottom: 1rem;
+    font-size: 1.75rem;
+}
+
+.welcome p {
+    margin-bottom: 1rem;
+    line-height: 1.7;
+    color: var(--text-secondary);
+}
+
+.welcome ul {
+    list-style: none;
+    margin-top: 2rem;
+}
+
+.welcome li {
+    margin-bottom: 0.75rem;
+    padding-left: 1.5rem;
+    position: relative;
+}
+
+/* Diff Display */
+.diff-container {
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.diff-file {
+    margin-bottom: 2rem;
+}
+
+.diff-header {
+    background: var(--bg-tertiary);
+    padding: 0.875rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px 6px 0 0;
+    font-weight: 600;
+}
+
+.diff-body {
+    border: 1px solid var(--border-color);
+    border-top: none;
+    border-radius: 0 0 6px 6px;
+    overflow-x: auto;
+}
+
+.diff-line {
+    display: flex;
+    padding: 0.125rem 0;
+    white-space: pre;
+    font-family: 'Courier New', monospace;
+}
+
+.line-number {
+    display: inline-block;
+    min-width: 60px;
+    padding: 0 0.875rem;
+    text-align: right;
+    color: var(--text-secondary);
+    user-select: none;
+    flex-shrink: 0;
+}
+
+.line-content {
+    flex: 1;
+    padding: 0 1rem;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.diff-line.add {
+    background: var(--add-bg);
+}
+
+.diff-line.add .line-content {
+    color: var(--add-color);
+}
+
+.diff-line.remove {
+    background: var(--remove-bg);
+}
+
+.diff-line.remove .line-content {
+    color: var(--remove-color);
+}
+
+.diff-line.context {
+    color: var(--text-primary);
+}
+
+.diff-line.hunk-header {
+    background: var(--bg-tertiary);
+    color: var(--accent-color);
+    font-weight: 600;
+}
+
+/* File Content Display */
+.file-content {
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    background: var(--bg-secondary);
+    padding: 1.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+}
+
+/* Loading State */
+.loading {
+    padding: 1.5rem;
+    text-align: center;
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--bg-tertiary);
+    border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--border-color);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 280px;
+    }
+
+    .content-area {
+        padding: 1rem;
+    }
+}

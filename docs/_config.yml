@@ -1,0 +1,11 @@
+# Jekyll configuration for GitHub Pages
+# This ensures the site is served correctly
+
+# Disable Jekyll processing since we're serving static files
+exclude:
+  - README.md
+
+# Enable relative links
+relative_links:
+  enabled: true
+  collections: false
