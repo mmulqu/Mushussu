@@ -497,6 +497,9 @@ async function loadCommits() {
 
 async function viewCommitDiff(sha) {
     try {
+        // Close commits panel so diff is fully visible and scrollable
+        el.commitsPanel.style.display = 'none';
+
         showStatus('Loading commit diff...');
 
         const response = await fetch(`${GITHUB_API}/repos/${state.owner}/${state.repo}/commits/${sha}`, {
