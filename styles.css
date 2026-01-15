@@ -11,9 +11,9 @@
     --accent-hover: #1f6feb;
     --success-color: #3fb950;
     --danger-color: #f85149;
-    --add-bg: rgba(63, 185, 80, 0.15);
+    --add-bg: rgba(63, 185, 80, 0.3);
     --add-color: #3fb950;
-    --remove-bg: rgba(248, 81, 73, 0.15);
+    --remove-bg: rgba(248, 81, 73, 0.3);
     --remove-color: #f85149;
 }
 
