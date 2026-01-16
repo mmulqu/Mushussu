@@ -88,6 +88,7 @@ function setupEventListeners() {
     // Text selection to jump to location in diff
     // Desktop: double-click
     el.editor.addEventListener('dblclick', handleEditorDoubleClick);
+    el.diffView.addEventListener('dblclick', handleDiffClick);
 
     // Mobile: double-tap
     setupDoubleTap(el.editor, handleEditorDoubleClick);
@@ -179,16 +180,6 @@ function setupDoubleTap(element, callback) {
         lastTap = currentTime;
         lastTapTarget = target;
     });
-
-    // Also keep regular click for diff view
-    if (element.classList.contains('diff-view')) {
-        element.addEventListener('click', (e) => {
-            // Only if not viewing commit diff
-            if (!state.isViewingCommitDiff) {
-                callback(e);
-            }
-        });
-    }
 }
 
 // Jump to text location (double-click/tap in editor)
@@ -197,14 +188,14 @@ function handleEditorDoubleClick(e) {
 
     let searchText = '';
 
-    // Try to get selected text first
-    const selection = window.getSelection();
-    const selectedText = selection.toString().trim();
+    // For textarea, use selectionStart/selectionEnd instead of window.getSelection()
+    // Double-click automatically selects the word in textarea
+    if (el.editor.selectionStart !== el.editor.selectionEnd) {
+        searchText = el.editor.value.substring(el.editor.selectionStart, el.editor.selectionEnd).trim();
+    }
 
-    if (selectedText && selectedText.length >= 3) {
-        searchText = selectedText;
-    } else {
-        // For mobile touch or no selection, get the word at cursor/touch position
+    // If no selection (mobile touch), get word at position
+    if (!searchText || searchText.length < 3) {
         if (e.type === 'touchend') {
             // For touch events, try to get the word near the touch point
             const touch = e.changedTouches ? e.changedTouches[0] : null;
@@ -285,12 +276,18 @@ function handleDiffClick(e) {
         target = document.elementFromPoint(touch.clientX, touch.clientY);
     }
 
+    // Make sure we have a valid target
+    if (!target) return;
+
+    // Find the closest diff-line, even if we clicked on prefix or content
     const lineElement = target.closest('.diff-line');
     if (!lineElement) return;
 
+    // Get the line content
     const contentElement = lineElement.querySelector('.line-content');
     if (!contentElement) return;
 
+    // Get text content - works on all line types (add, remove, context)
     const text = contentElement.textContent.trim();
     if (text.length < 3) return;
 
