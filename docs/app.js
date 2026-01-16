@@ -162,53 +162,130 @@ function handleResize() {
 // Setup double-tap detection for mobile
 function setupDoubleTap(element, callback) {
     let lastTap = 0;
-    let tapTimeout;
+    let lastTapTarget = null;
 
     element.addEventListener('touchend', (e) => {
         const currentTime = new Date().getTime();
         const tapLength = currentTime - lastTap;
+        const target = e.target;
 
-        clearTimeout(tapTimeout);
-
-        if (tapLength < 500 && tapLength > 0) {
-            // Double tap detected
+        // Check if it's a double-tap (within 500ms on same area)
+        if (tapLength < 500 && tapLength > 0 && target === lastTapTarget) {
+            // Double tap detected - call the callback
+            e.preventDefault(); // Prevent zoom
             callback(e);
-            e.preventDefault();
-        } else {
-            // Single tap - wait to see if another tap comes
-            tapTimeout = setTimeout(() => {
-                clearTimeout(tapTimeout);
-            }, 500);
         }
 
         lastTap = currentTime;
+        lastTapTarget = target;
     });
-}
 
-// Jump to text location (double-click in editor, double-tap on mobile)
-function handleEditorDoubleClick(e) {
-    if (state.isViewingCommitDiff) return; // Only works in live editing mode
-
-    const selection = window.getSelection();
-    const selectedText = selection.toString().trim();
-
-    if (!selectedText || selectedText.length < 3) {
-        // Get line at cursor position if no selection
-        const cursorPos = el.editor.selectionStart;
-        const lines = el.editor.value.substring(0, cursorPos).split('\n');
-        const currentLine = lines[lines.length - 1];
-
-        if (currentLine && currentLine.trim().length > 3) {
-            scrollToTextInDiff(currentLine.trim());
-        }
-    } else {
-        scrollToTextInDiff(selectedText);
+    // Also keep regular click for diff view
+    if (element.classList.contains('diff-view')) {
+        element.addEventListener('click', (e) => {
+            // Only if not viewing commit diff
+            if (!state.isViewingCommitDiff) {
+                callback(e);
+            }
+        });
     }
 }
 
+// Jump to text location (double-click/tap in editor)
+function handleEditorDoubleClick(e) {
+    if (state.isViewingCommitDiff) return; // Only works in live editing mode
+
+    let searchText = '';
+
+    // Try to get selected text first
+    const selection = window.getSelection();
+    const selectedText = selection.toString().trim();
+
+    if (selectedText && selectedText.length >= 3) {
+        searchText = selectedText;
+    } else {
+        // For mobile touch or no selection, get the word at cursor/touch position
+        if (e.type === 'touchend') {
+            // For touch events, try to get the word near the touch point
+            const touch = e.changedTouches ? e.changedTouches[0] : null;
+            if (touch) {
+                // Get approximate cursor position
+                const cursorPos = getCursorPositionFromTouch(touch, el.editor);
+                if (cursorPos !== -1) {
+                    searchText = getWordAtPosition(el.editor.value, cursorPos);
+                }
+            }
+        } else {
+            // For mouse events, use selectionStart
+            const cursorPos = el.editor.selectionStart;
+            searchText = getWordAtPosition(el.editor.value, cursorPos);
+        }
+    }
+
+    if (searchText && searchText.length >= 3) {
+        scrollToTextInDiff(searchText);
+    }
+}
+
+// Get word at a specific position in text
+function getWordAtPosition(text, position) {
+    // Find word boundaries around position
+    let start = position;
+    let end = position;
+
+    // Move start back to beginning of word
+    while (start > 0 && /\S/.test(text[start - 1])) {
+        start--;
+    }
+
+    // Move end forward to end of word
+    while (end < text.length && /\S/.test(text[end])) {
+        end++;
+    }
+
+    return text.substring(start, end).trim();
+}
+
+// Get approximate cursor position from touch event
+function getCursorPositionFromTouch(touch, textarea) {
+    // This is approximate - we'll get the line that was tapped
+    const textareaRect = textarea.getBoundingClientRect();
+    const relativeY = touch.clientY - textareaRect.top + textarea.scrollTop;
+
+    // Estimate line height
+    const computedStyle = window.getComputedStyle(textarea);
+    const lineHeight = parseFloat(computedStyle.lineHeight);
+
+    if (lineHeight) {
+        const lineIndex = Math.floor(relativeY / lineHeight);
+        const lines = textarea.value.split('\n');
+
+        if (lineIndex >= 0 && lineIndex < lines.length) {
+            // Return position at start of this line
+            let position = 0;
+            for (let i = 0; i < lineIndex; i++) {
+                position += lines[i].length + 1; // +1 for newline
+            }
+            return position;
+        }
+    }
+
+    return -1;
+}
+
 function handleDiffClick(e) {
-    // Find the line content that was clicked
-    const lineElement = e.target.closest('.diff-line');
+    if (state.isViewingCommitDiff) return; // Only works in live editing mode
+
+    // Find the line content that was clicked/tapped
+    let target = e.target;
+
+    // Handle both touch and click events
+    if (e.type === 'touchend' && e.changedTouches) {
+        const touch = e.changedTouches[0];
+        target = document.elementFromPoint(touch.clientX, touch.clientY);
+    }
+
+    const lineElement = target.closest('.diff-line');
     if (!lineElement) return;
 
     const contentElement = lineElement.querySelector('.line-content');
